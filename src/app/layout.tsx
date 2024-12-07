@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 // import localFont from "next/font/local";
 import "./globals.css";
+import { Provider } from "@/components/ui/provider";
 
 // const geistSans = localFont({
 //   src: "./fonts/GeistVF.woff",
@@ -24,11 +25,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html className="h-screen" lang="en">
+    <html className="h-screen bg-transparent" lang="en" suppressHydrationWarning>
       <body
         className={`h-full antialiased`}
       >
-        {children}
+        <Provider>
+          {children}
+        </Provider>
       </body>
     </html>
   );

@@ -1,14 +1,19 @@
 "use client";
+
+import NKJVBibleJSON from "@/bibles/bible_data.json"
 import React, { useState, useEffect, ChangeEvent, FormEvent, useRef, useLayoutEffect } from "react";
 import { VerseData, BibleData, BookInfo, CV } from "@/utils/types";
-import { fetchBibleData, getName } from "@/utils";
+import { getName } from "@/utils";
 import chapterAndVerse from "@/utils/parser/cv";
-import { Karla } from "next/font/google"
 
-const karla = Karla({weight: "variable", style: "normal", display: "swap", subsets: ["latin", "latin-ext"] })
+const NKJVBible: Record<string, any> = NKJVBibleJSON
+
+// import { Karla } from "next/font/google"
+
+// const karla = Karla({weight: "variable", style: "normal", display: "swap", subsets: ["latin", "latin-ext"] })
 
 const BibleViewer = () => {
-  const [bibleData, setBibleData] = useState<BibleData>({});
+  const [bibleData] = useState<BibleData>(NKJVBible);
   const [input, setInput] = useState("");
   const [filteredBooks, setFilteredBooks] = useState<string[]>([]);
   const [displayChapter, setDisplayChapter] = useState<VerseData>({});
@@ -38,8 +43,10 @@ const BibleViewer = () => {
       isScripture: true,
     };
     channel.postMessage(verseData);
-    const event = new Event("verseHighlighted");
-    window.dispatchEvent(event);
+    // console.log(window.electronAPI, "just sent this info: ", verseData)
+    // window.electronAPI.sendVerseUpdate(verseData)
+    // const event = new Event("verseHighlighted");
+    // window.dispatchEvent(event);
   };
 
   const changeScripture = (book: BookInfo, chapter: string, verse: string) => {
@@ -57,9 +64,9 @@ const BibleViewer = () => {
 
   useEffect(() => setBookNames(Object.keys(bibleData).sort()), [bibleData]);
 
-  useEffect(() => {
-    fetchBibleData().then((data) => setBibleData(data));
-  }, []);
+  // useEffect(() => {
+  //   fetchBibleData().then((data) => setBibleData(data));
+  // }, []);
 
   // useEffect(() => {
   //   if (book?.name) {
@@ -206,7 +213,7 @@ const BibleViewer = () => {
 
 
   return (
-    <div className={`h-full w-full max-w-full max-h-full relative overflow-hidden px-2 controls ${karla.className}`}>
+    <div className={`h-full w-full max-w-full max-h-full relative overflow-hidden px-2 controls`}>
       <form className="bg-white w-full fixed h-14 top-0 left-0 py-2 px-2 flex gap-4 justify-center items-center z-20" onSubmit={handleSubmit}>
         <div className="w-full relative max-w-md">
           <input

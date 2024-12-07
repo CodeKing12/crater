@@ -1,27 +1,64 @@
 {
   "name": "crater",
   "version": "0.1.0",
+  "description": "A desktop for projecting scripture to OBS",
+  "main": "main.js",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "electron-forge start",
+    "lint": "next lint",
+    "electron": "electron .",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CodeKing12/crater-electron.git"
+  },
+  "keywords": [
+    "OBS",
+    "Easyworship",
+    "Open-Source"
+  ],
+  "author": "Eyetu Kingsley",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CodeKing12/crater-electron/issues"
+  },
+  "homepage": "https://github.com/CodeKing12/crater-electron#readme",
   "dependencies": {
+    "@chakra-ui/react": "^3.2.3",
+    "@emotion/react": "^11.13.5",
     "bible-ref-parser": "^1.0.1",
     "chapter-and-verse": "^3.0.4",
+    "electron-squirrel-startup": "^1.0.1",
     "next": "14.2.13",
+    "next-themes": "^0.4.4",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-icons": "^5.4.0"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^7.6.0",
+    "@electron-forge/maker-deb": "^7.6.0",
+    "@electron-forge/maker-rpm": "^7.6.0",
+    "@electron-forge/maker-squirrel": "^7.6.0",
+    "@electron-forge/maker-zip": "^7.6.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.6.0",
+    "@electron-forge/plugin-fuses": "^7.6.0",
+    "@electron/fuses": "^1.8.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "electron": "^32.2.7",
     "eslint": "^8",
     "eslint-config-next": "14.2.13",
     "postcss": "^8",
+    "prettier": "^3.3.3",
+    "prettier-eslint": "^16.3.0",
+    "prettier-eslint-config": "^1.0.7",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }
