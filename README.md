@@ -1,36 +1,196 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Church Projection Software
 
-## Getting Started
+A modern church projection software built using **Electron** and **Next.js**, designed to display scriptures, lyrics, and other media seamlessly. This software is optimized for OBS Studio integration and is easy to use for church media teams.  
 
-First, run the development server:
+
+---  
+
+## Features
+
+- 📖 **Scripture Display**: Dynamically show Bible verses in fullscreen mode.
+
+- 🎥 **OBS Studio Integration**: Compatible with OBS Studio for live streaming and recording.
+
+- 💻 **Customizable Display**: Transparent window for overlaying scripture on other media.
+
+- ⚙️ **Efficient Communication**: Update scriptures in real-time via a control panel.
+
+- 🛠️ **Cross-Platform**: Runs on Windows, macOS, and Linux.
+
+- 🚀 **Always On Top**: Ensures the projection stays visible over other applications.
+
+- 🔒 **Electron Security**: Context isolation and preload scripts for secure communication.
+
+  
+---
+
+## Requirements
+
+-  **Node.js** (v16 or later)
+
+-  **npm** or **yarn**
+
+- OBS Studio (for live streaming integration)
+
+  
+
+---  
+
+## Installation
+
+1. Clone the repository:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+git clone https://github.com/CodeKing12/crater.git
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Navigate to the project folder:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+cd church-projection-software
 
-## Learn More
+```
 
-To learn more about Next.js, take a look at the following resources:
+3. Install dependencies:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+npm install
 
-## Deploy on Vercel
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4. Build the Next.js frontend:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+
+npm run build
+
+```
+
+5. Start the Electron app:
+
+```bash
+
+npm run electron
+
+```
+
+
+
+---  
+
+## Usage
+
+### 1. **Start the Application**
+
+- Run the app using the `npm run electron` command.
+
+- The main display window will open in fullscreen mode.
+
+
+### 2. **Control Scripture Display**
+
+- Use the control panel to select and update scriptures.
+
+- Updates will reflect in real-time on the main display.
+
+
+### 3. **OBS Studio Integration**
+
+- Add a **Window Capture** source in OBS Studio.
+
+- Select the projection window from the available options.
+
+
+
+---  
+
+## Project Structure
+
+```
+
+church-projection-software/
+
+├── main.js # Electron main process file
+
+├── preload.js # Preload script for secure communication
+
+├── src/ # Next.js app for the control and display UI
+
+│ ├── app/ # Next.js pages
+
+│ ├── components/ # React components
+
+│ ├── bibles/ # Bible data in JSON format
+
+│ └── utils/ # Helper functions and types
+
+├── package.json # Project dependencies and scripts
+
+└── README.md # Project documentation
+
+```
+
+
+
+---
+
+## Scripts
+
+-  **`npm run dev`**: Start the Next.js app in development mode.
+
+-  **`npm run build`**: Build the Next.js app for production.
+
+-  **`npm run start`**: Start the Next.js app in production.
+
+-  **`npm run electron`**: Start the Electron app.
+
+
+
+---  
+
+## Technical Details
+
+### Electron Configuration
+
+-  **`backgroundThrottling: false`** ensures that the scripture display updates even when the window is not focused.
+
+-  **`alwaysOnTop: true`** keeps the projection window on top of other applications.
+
+
+### Next.js Communication
+
+-  **BroadcastChannel API**: Synchronizes scripture updates between control and display windows.
+
+-  **Electron IPC**: Enables secure communication between the Electron main process and renderer.
+  
+
+
+---
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request to suggest features or fix bugs.
+
+  
+
+---
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+
+
+---  
+
+## Acknowledgments
+
+- Inspired by software like **EasyWorship** and **ProPresenter**.
+
+- Built with ❤️ for modern church services.
+
+ 
