@@ -3,7 +3,10 @@
 A modern church projection software built using **Electron** and **Next.js**, designed to display scriptures, lyrics, and other media seamlessly. This software is optimized for OBS Studio integration and is easy to use for church media teams.  
 
 
+
 ---  
+
+
 
 ## Features
 
@@ -22,7 +25,10 @@ A modern church projection software built using **Electron** and **Next.js**, de
 - 🔒 **Electron Security**: Context isolation and preload scripts for secure communication.
 
   
+
 ---
+
+
 
 ## Requirements
 
