@@ -9,9 +9,25 @@
     "build": "next build",
     "start": "electron-forge start",
     "lint": "next lint",
-    "electron": "electron .",
+    "electron": "electron ./electron/main.js",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "electron-forge make",
+    "rebuild": "electron-rebuild -f -w better-sqlite3"
+  },
+  "build": {
+    "appId": "sqlite.electron-test.app",
+    "productName": "Crater Bible Project",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*",
+      "public/**/*"
+    ],
+    "directories": {
+      "buildResources": "public"
+    },
+    "extraResources": [
+      "./demo_table.db"
+    ]
   },
   "repository": {
     "type": "git",
@@ -31,14 +47,20 @@
   "dependencies": {
     "@chakra-ui/react": "^3.2.3",
     "@emotion/react": "^11.13.5",
+    "@noriginmedia/norigin-spatial-navigation": "^2.2.2",
+    "better-sqlite3": "^11.7.0",
     "bible-ref-parser": "^1.0.1",
     "chapter-and-verse": "^3.0.4",
+    "electron-builder": "^25.1.8",
     "electron-squirrel-startup": "^1.0.1",
+    "ffi-rs": "^1.1.1",
     "next": "14.2.13",
     "next-themes": "^0.4.4",
+    "node-ffi-rs": "^1.1.1",
     "react": "^18",
     "react-dom": "^18",
-    "react-icons": "^5.4.0"
+    "react-icons": "^5.4.0",
+    "ref-napi": "^3.0.3"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.6.0",
@@ -53,6 +75,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "electron": "^32.2.7",
+    "electron-rebuild": "^3.2.9",
     "eslint": "^8",
     "eslint-config-next": "14.2.13",
     "postcss": "^8",

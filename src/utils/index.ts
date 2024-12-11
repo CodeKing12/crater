@@ -7,5 +7,12 @@ import { BookInfo } from "./types";
 // };
 
 export function getName(book?: BookInfo) {
-    return book?.name?.toLowerCase() ?? ""
+  return book?.name?.toLowerCase() ?? "genesis";
+}
+
+export function sendMessage(
+  channel: BroadcastChannel,
+  message: Record<string, any>,
+) {
+  channel.postMessage({ ...message, type: "message" });
 }
