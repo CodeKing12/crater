@@ -1,8 +1,6 @@
 import { DisplayProps } from "@/app/controls/page";
 import { Card, For, Heading, Stack } from "@chakra-ui/react";
 import ScriptureDisplay from "./ScriptureDisplay";
-import NKJVBibleJSON from "@/bibles/bible_data.json";
-import { BibleData } from "@/utils/types";
 import { useEffect, useState } from "react";
 
 interface LiveCompProps {
@@ -32,6 +30,7 @@ export default function LiveComponent({ liveItems }: LiveCompProps) {
         {(item, index) =>
           item.type === "scripture" ? (
             <ScriptureDisplay
+              key={index}
               scripture={item.data}
               onScriptureClick={() => displayLiveItem(item)}
             />

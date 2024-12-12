@@ -12,22 +12,9 @@
     "electron": "electron ./electron/main.js",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "rebuild": "electron-rebuild -f -w better-sqlite3"
-  },
-  "build": {
-    "appId": "sqlite.electron-test.app",
-    "productName": "Crater Bible Project",
-    "files": [
-      "build/**/*",
-      "node_modules/**/*",
-      "public/**/*"
-    ],
-    "directories": {
-      "buildResources": "public"
-    },
-    "extraResources": [
-      "./demo_table.db"
-    ]
+    "rebuild": "electron-rebuild -f -w better-sqlite3",
+    "build-app:dir": "electron-builder --dir",
+    "build-app:dist": "electron-builder"
   },
   "repository": {
     "type": "git",
@@ -47,11 +34,9 @@
   "dependencies": {
     "@chakra-ui/react": "^3.2.3",
     "@emotion/react": "^11.13.5",
-    "@noriginmedia/norigin-spatial-navigation": "^2.2.2",
     "better-sqlite3": "^11.7.0",
     "bible-ref-parser": "^1.0.1",
-    "chapter-and-verse": "^3.0.4",
-    "electron-builder": "^25.1.8",
+    "copy-webpack-plugin": "^12.0.2",
     "electron-squirrel-startup": "^1.0.1",
     "ffi-rs": "^1.1.1",
     "next": "14.2.13",
@@ -60,9 +45,13 @@
     "react": "^18",
     "react-dom": "^18",
     "react-icons": "^5.4.0",
+    "electron-builder": "^25.1.8",
+    "electron": "^32.2.7",
     "ref-napi": "^3.0.3"
   },
   "devDependencies": {
+    "@noriginmedia/norigin-spatial-navigation": "^2.2.2",
+    "chapter-and-verse": "^3.0.4",
     "@electron-forge/cli": "^7.6.0",
     "@electron-forge/maker-deb": "^7.6.0",
     "@electron-forge/maker-rpm": "^7.6.0",
@@ -74,7 +63,6 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "electron": "^32.2.7",
     "electron-rebuild": "^3.2.9",
     "eslint": "^8",
     "eslint-config-next": "14.2.13",
@@ -84,5 +72,61 @@
     "prettier-eslint-config": "^1.0.7",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
+  },
+  "build": {
+    "productName": "Crater Bible Project",
+    "appId": "com.crater.app",
+    "asar": true,
+    "asarUnpack": "**/*.{node,dll}",
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "type": "distribution",
+      "hardenedRuntime": true,
+      "entitlements": "assets/entitlements.mac.plist",
+      "entitlementsInherit": "assets/entitlements.mac.plist",
+      "gatekeeperAssess": false
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Development"
+    },
+    "directories": {
+      "app": "release/app",
+      "buildResources": "app-assets",
+      "output": "release/build"
+    },
+    "extraResources": [
+      "./assets/**"
+    ],
+    "publish": {
+      "provider": "github",
+      "owner": "CodeKing12",
+      "repo": "crater"
+    }
   }
 }

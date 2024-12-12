@@ -26,6 +26,7 @@ export default function PreviewComponent({
         {(item, index) =>
           item.type === "scripture" ? (
             <ScriptureDisplay
+              key={index}
               scripture={item.data}
               onScriptureDoubleClick={() => pushToLive(item.data)}
             />

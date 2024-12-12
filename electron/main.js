@@ -6,6 +6,17 @@ const {
   desktopCapturer,
   session,
 } = require("electron");
+const {
+  fetchScripture,
+  fetchChapter,
+  fetchChapterCounts,
+} = require("../database/bible-operations");
+const {
+  fetchAllSongs,
+  fetchSongLyrics,
+  updateSong,
+  filterSongsByPhrase,
+} = require("../database/song-operations");
 // const { load } = require("ffi-rs");
 
 // // Load the NDI library
@@ -173,3 +184,25 @@ app.whenReady().then(() => {
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });
+
+ipcMain.handle("fetch-chapter-counts", (event) => {
+  const counts = fetchChapterCounts();
+  // console.log("Here are the Chapter Counts: ", counts);
+  return counts;
+});
+
+ipcMain.handle("fetch-chapter", (event, chapterInfo) => {
+  console.log("Code - Fetching Scripture Chapter Data", chapterInfo);
+  // console.log(fetchChapter(chapterInfo));
+  return fetchChapter(chapterInfo);
+});
+
+ipcMain.handle("fetch-scripture", (event, scriptureInfo) => {
+  console.log("Fetch Scripture Arguments: ", scriptureInfo);
+  return fetchScripture(scriptureInfo);
+});
+
+ipcMain.handle("fetch-songs", (event) => fetchAllSongs());
+ipcMain.handle("fetch-lyrics", (event, songId) => fetchSongLyrics(songId));
+ipcMain.handle("update-song", (event, newInfo) => updateSong(newInfo));
+ipcMain.handle("filter-songs", (event, phrase) => filterSongsByPhrase(phrase));

@@ -1,6 +1,5 @@
 "use client";
 
-import NKJVBibleJSON from "@/bibles/bible_data.json";
 import React, {
   useState,
   useEffect,

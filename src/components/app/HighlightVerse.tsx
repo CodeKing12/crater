@@ -2,7 +2,7 @@ import { getName } from "@/utils";
 import { ChangeScriptureFn } from "./ScriptureSelection";
 import { BookInfo } from "@/utils/types";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
-import { MouseEventHandler } from "react";
+import { MouseEventHandler, useEffect } from "react";
 import { Box, Table } from "@chakra-ui/react";
 
 interface HighlightVerseProps {
@@ -27,6 +27,10 @@ export default function HighlightVerse({
   verseText,
 }: HighlightVerseProps) {
   //   const { ref, focused } = useFocusable();
+  useEffect(() => {
+    if (highlightVerse === verseNum || navigatedVerse === verseNum)
+      console.log(highlightVerse, navigatedVerse);
+  }, [highlightVerse, navigatedVerse]);
 
   return (
     // <Box
@@ -61,7 +65,6 @@ export default function HighlightVerse({
         tabIndex={-1}
         data-verse={`${getName(book)}-${chapter}-${verseNum}`}
         onClick={onVerseClick}
-        key={`${getName(book)}-${chapter}-${verseNum}`}
         maxW="full"
         bgColor={
           verseNum === highlightVerse
