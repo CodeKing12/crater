@@ -1,34 +1,29 @@
 import { Box, Card, Heading } from "@chakra-ui/react";
+import { SongLyric } from "../../../interface";
 import { CSSProperties, useEffect, useRef } from "react";
 import { SetItemSize } from "./PreviewComponent";
 
-interface ScriptureDisplayProps {
+interface LyricDisplayProps {
   index: number;
-  scripture: {
-    book: string;
-    chapter: string;
-    verse: string;
-    version: string;
-    text: string;
-  };
-  onScriptureClick?: () => void;
-  onScriptureDoubleClick?: () => void;
+  lyric: SongLyric;
+  onLyricClick?: () => void;
+  onLyricDoubleClick?: () => void;
   style: CSSProperties;
   setSize: SetItemSize;
   windowWidth: number;
   isCurrentNavig: boolean;
 }
 
-export default function ScriptureDisplay({
+export default function LyricDisplay({
   index,
-  scripture,
-  onScriptureClick,
-  onScriptureDoubleClick,
+  lyric,
+  onLyricClick,
+  onLyricDoubleClick,
   style,
   setSize,
   windowWidth,
   isCurrentNavig,
-}: ScriptureDisplayProps) {
+}: LyricDisplayProps) {
   const rowRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -36,21 +31,21 @@ export default function ScriptureDisplay({
   }, [setSize, index, windowWidth]);
 
   return (
-    <Box ref={rowRef} px="4" py={1} style={{ ...style, height: "unset" }}>
+    <Box px="4" py={1} ref={rowRef} style={{ ...style, height: "unset" }}>
       <Card.Root
         size="sm"
         cursor="pointer"
-        onClick={onScriptureClick}
-        onDoubleClick={onScriptureDoubleClick}
+        onClick={onLyricClick}
+        onDoubleClick={onLyricDoubleClick}
         bgColor={isCurrentNavig ? "blue" : "bg.panel"}
       >
         <Card.Header>
           <Heading size="md" textTransform="capitalize">
-            {scripture.book} {scripture.chapter}:{scripture.verse}
+            {lyric.label}
           </Heading>
         </Card.Header>
         <Card.Body color="fg.muted" fontFamily="body">
-          {scripture.text}
+          {lyric?.text.map((line, index) => <p key={index}>{line}</p>)}
         </Card.Body>
       </Card.Root>
     </Box>

@@ -1,22 +1,18 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const {
   app,
   BrowserWindow,
   ipcMain,
   screen,
   desktopCapturer,
-  session,
 } = require("electron");
 const {
   fetchScripture,
   fetchChapter,
   fetchChapterCounts,
 } = require("../database/bible-operations");
-const {
-  fetchAllSongs,
-  fetchSongLyrics,
-  updateSong,
-  filterSongsByPhrase,
-} = require("../database/song-operations");
+const { fetchAllSongs, fetchSongLyrics, updateSong, filterSongsByPhrase } =
+  require("../database/song-operations").default;
 // const { load } = require("ffi-rs");
 
 // // Load the NDI library
@@ -80,6 +76,7 @@ const {
 // }
 
 const createWindows = (screenWidth, screenHeight) => {
+  console.log(screenWidth, screenHeight);
   const win1 = new BrowserWindow({
     title: "Crater Scripture Display",
     fullscreen: true,
@@ -95,7 +92,7 @@ const createWindows = (screenWidth, screenHeight) => {
       backgroundThrottling: false,
     },
   });
-  win1.setIgnoreMouseEvents(true);
+  // win1.setIgnoreMouseEvents(true);
 
   win1.on("page-title-updated", (e) => e.preventDefault());
   //   win1.capturePage()
@@ -154,6 +151,7 @@ const createWindows = (screenWidth, screenHeight) => {
   win2.on("page-title-updated", (e) => e.preventDefault());
 
   win2.webContents.on("did-fail-load", (e, code, desc) => {
+    console.log("Failed to Load: ", e, code, desc);
     win2.webContents.reloadIgnoringCache();
   });
 
@@ -185,24 +183,24 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });
 
-ipcMain.handle("fetch-chapter-counts", (event) => {
+ipcMain.handle("fetch-chapter-counts", () => {
   const counts = fetchChapterCounts();
   // console.log("Here are the Chapter Counts: ", counts);
   return counts;
 });
 
-ipcMain.handle("fetch-chapter", (event, chapterInfo) => {
+ipcMain.handle("fetch-chapter", (chapterInfo) => {
   console.log("Code - Fetching Scripture Chapter Data", chapterInfo);
   // console.log(fetchChapter(chapterInfo));
   return fetchChapter(chapterInfo);
 });
 
-ipcMain.handle("fetch-scripture", (event, scriptureInfo) => {
+ipcMain.handle("fetch-scripture", (scriptureInfo) => {
   console.log("Fetch Scripture Arguments: ", scriptureInfo);
   return fetchScripture(scriptureInfo);
 });
 
-ipcMain.handle("fetch-songs", (event) => fetchAllSongs());
-ipcMain.handle("fetch-lyrics", (event, songId) => fetchSongLyrics(songId));
-ipcMain.handle("update-song", (event, newInfo) => updateSong(newInfo));
-ipcMain.handle("filter-songs", (event, phrase) => filterSongsByPhrase(phrase));
+ipcMain.handle("fetch-songs", () => fetchAllSongs());
+ipcMain.handle("fetch-lyrics", (songId) => fetchSongLyrics(songId));
+ipcMain.handle("update-song", (newInfo) => updateSong(newInfo));
+ipcMain.handle("filter-songs", (phrase) => filterSongsByPhrase(phrase));

@@ -9,7 +9,7 @@ const songsData = JSON.parse(fs.readFileSync(jsonFilePath, "utf-8"));
 
 // Prepare SQL statements
 const insertSong = db.prepare(
-  `INSERT INTO songs (title, author, category) VALUES (?, ?, ?)`,
+  `INSERT INTO songs (title, author, copyright) VALUES (?, ?, ?)`,
 );
 
 const insertLyric = db.prepare(
@@ -19,10 +19,10 @@ const insertLyric = db.prepare(
 // Seed songs and lyrics
 for (const [title, lyrics] of Object.entries(songsData)) {
   const author = ""; // Update as needed
-  const category = ""; // Update as needed
+  const copyright = ""; // Update as needed
 
   // Insert song into the database
-  const result = insertSong.run(title, author, category);
+  const result = insertSong.run(title, author, copyright);
   const songId = result.lastInsertRowid;
 
   // Insert lyrics for the song

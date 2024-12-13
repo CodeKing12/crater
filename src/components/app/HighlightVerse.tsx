@@ -1,9 +1,7 @@
 import { getName } from "@/utils";
-import { ChangeScriptureFn } from "./ScriptureSelection";
 import { BookInfo } from "@/utils/types";
-import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
-import { MouseEventHandler, useEffect } from "react";
-import { Box, Table } from "@chakra-ui/react";
+import { MouseEventHandler } from "react";
+import { Table } from "@chakra-ui/react";
 
 interface HighlightVerseProps {
   verseNum: string;
@@ -27,10 +25,6 @@ export default function HighlightVerse({
   verseText,
 }: HighlightVerseProps) {
   //   const { ref, focused } = useFocusable();
-  useEffect(() => {
-    if (highlightVerse === verseNum || navigatedVerse === verseNum)
-      console.log(highlightVerse, navigatedVerse);
-  }, [highlightVerse, navigatedVerse]);
 
   return (
     // <Box

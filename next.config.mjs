@@ -17,7 +17,7 @@ const nextConfig = {
   },
   // assetPrefix: "./",
   // basePath: "/_next",
-  webpack: (config, { isServer }) => {
+  webpack: (config) => {
     // if (!isServer) {
     config.plugins.push(
       new CopyWebpackPlugin({

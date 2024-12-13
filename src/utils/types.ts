@@ -34,3 +34,7 @@ export interface CV {
   from?: number | null;
   to?: number | null;
 }
+
+export interface ItemSizeMap {
+  [index: number]: number;
+}

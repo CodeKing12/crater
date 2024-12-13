@@ -6,25 +6,62 @@ import { TbBible } from "react-icons/tb";
 import SongSelection from "./SongSelection";
 import ScriptureSelection from "./ScriptureSelection";
 import { DisplayProps } from "@/app/controls/page";
+import { useAppInfo } from "@/providers/AppInfo";
+import { useEffect, useRef } from "react";
 
 export interface UpdateDisplayProps {
-  setPreview: (item: DisplayProps[]) => void;
-  setLive: (item: DisplayProps[]) => void;
+  setPreview: (item: DisplayProps) => void;
+  setLive: (item: DisplayProps) => void;
 }
 
-export default function ControlsMain({
-  setPreview,
-  setLive,
-}: UpdateDisplayProps) {
+type Props = UpdateDisplayProps;
+
+// const CONTROL_PANELS = {
+//   SONGS: "songs",
+//   SCRIPTURE: "scripture",
+//   MEDIA: "media",
+//   PRESENTATIONS: "presentations",
+//   THEMES: "themes",
+// };
+
+export default function ControlsMain({ setPreview, setLive }: Props) {
+  const DEFAULT_TAB = "scripture";
+  const { panelFocus, setPanelFocus } = useAppInfo();
+  const panelRootRef = useRef<HTMLDivElement | null>(null);
+  const currentTab = useRef(DEFAULT_TAB);
+
+  function changeKeyboardFocus(details: { value: string }) {
+    console.log("Changing Focus: ", details.value);
+    setPanelFocus(details.value);
+  }
+
+  useEffect(() => {
+    function handleComponentFocus() {
+      if (panelFocus !== currentTab.current) {
+        console.log("ControlsMain Component Focused");
+        setPanelFocus(currentTab.current);
+      }
+    }
+
+    if (panelRootRef) {
+      panelRootRef.current?.addEventListener("click", handleComponentFocus);
+    }
+
+    return () => {
+      panelRootRef.current?.removeEventListener("click", handleComponentFocus);
+    };
+  }, [setPanelFocus, panelRootRef, panelFocus]);
+
   return (
-    <VStack h="full">
+    <VStack h="full" ref={panelRootRef}>
       <Tabs.Root
         w="full"
         h="full"
         variant="plain"
         display="flex"
         flexDir="column"
-        defaultValue="scripture"
+        defaultValue={DEFAULT_TAB}
+        onValueChange={changeKeyboardFocus}
       >
         <Tabs.List
           gap={2}
@@ -58,7 +95,7 @@ export default function ControlsMain({
         </Tabs.List>
         <Tabs.ContentGroup bg="bg.muted" h="full" fontFamily="body">
           <Tabs.Content h="full" value="songs" py={0}>
-            <SongSelection />
+            <SongSelection setPreview={setPreview} setLive={setLive} />
           </Tabs.Content>
           <Tabs.Content h="full" value="scripture" py={0}>
             <ScriptureSelection setPreview={setPreview} setLive={setLive} />

@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  Box,
-  Flex,
-  For,
-  Grid,
-  GridItem,
-  Input,
-  SimpleGrid,
-  Table,
-} from "@chakra-ui/react";
+import { Box, Flex, Table } from "@chakra-ui/react";
 import SearchInput from "../ui/search-input";
 
 import React, {
@@ -17,21 +8,19 @@ import React, {
   useEffect,
   ChangeEvent,
   FormEvent,
-  useRef,
   useLayoutEffect,
   useMemo,
+  useRef,
+  useCallback,
 } from "react";
-import { VerseData, BibleData, BookInfo, CV } from "@/utils/types";
+import { VerseData, BookInfo, CV } from "@/utils/types";
 import { getName, isValidBookAndChapter, sendMessage } from "@/utils";
 import chapterAndVerse from "@/utils/parser/cv";
 import { toaster } from "../ui/toaster";
 import { UpdateDisplayProps } from "./ControlsMain";
 import { DisplayProps } from "@/app/controls/page";
 import HighlightVerse from "./HighlightVerse";
-import {
-  FocusContext,
-  useFocusable,
-} from "@noriginmedia/norigin-spatial-navigation";
+import { useAppInfo } from "@/providers/AppInfo";
 
 export type ChangeScriptureFn = (
   book: BookInfo,
@@ -78,116 +67,122 @@ export default function ScriptureSelection({
   const [chapter, setChapter] = useState<number>(1);
   const [verse, setVerse] = useState<number>(1);
   const [isHidden, setHidden] = useState(false); // Control whether scripture is hidden or shown
-  const [version, setVersion] = useState("NKJV");
-  const { ref: verseListRef, focusKey } = useFocusable({
-    focusKey: "SCRIPTURE-SELECTION",
-  });
+  const [version] = useState("NKJV");
+  const verseListRef = useRef<HTMLDivElement | null>(null);
+  const { panelFocus } = useAppInfo();
 
-  function updateInput(
-    book: BookInfo,
-    chapter: number,
-    verse: number | string,
-  ) {
-    if (book?.name) {
-      setInput(`${getName(book)} ${chapter}:${verse}`);
-    }
-  }
+  useEffect(() => {
+    console.log("NAVIG VERSE: ", navigatedVerse);
+  }, [navigatedVerse]);
 
-  const sendVerseToHomePage = async (
-    book: string,
-    chapter: string,
-    verse: string,
-    text = "",
-    isPreview?: boolean,
-  ) => {
-    if (!text.length && typeof window !== "undefined") {
-      const fetchResults = await window.electronAPI.fetchScripture({
+  const updateInput = useCallback(
+    (book: BookInfo, chapter: number, verse: number | string) => {
+      if (book?.name) {
+        setInput(`${getName(book)} ${chapter}:${verse}`);
+      }
+    },
+    [],
+  );
+
+  const sendVerseToHomePage = useCallback(
+    async (
+      book: string,
+      chapter: string,
+      verse: string,
+      text = "",
+      isPreview?: boolean,
+    ) => {
+      if (!text.length && typeof window !== "undefined") {
+        const fetchResults = await window.electronAPI.fetchScripture({
+          book,
+          chapter,
+          verse,
+          version,
+        });
+        text = fetchResults.text;
+      }
+      const verseData = {
         book,
         chapter,
         verse,
         version,
-      });
-      text = fetchResults.text;
-    }
-    const verseData = {
-      book,
-      chapter,
-      verse,
-      version,
-      text,
-    };
-    const displayData: DisplayProps[] = [
-      {
-        type: "scripture",
-        data: verseData,
-      },
-    ];
-    setPreview(displayData);
-    if (!isPreview) {
-      setLive(displayData);
-    }
-    // console.log(window.electronAPI, "just sent this info: ", verseData)
-    // window.electronAPI.sendVerseUpdate(verseData)
-    // const event = new Event("verseHighlighted");
-    // window.dispatchEvent(event);
-  };
-
-  const changeScripture: ChangeScriptureFn = (
-    book,
-    chapter,
-    verse,
-    text = "",
-    live = true,
-  ) => {
-    const currentBook = getName(book);
-    console.log(verse);
-    if (currentBook) {
-      setBook(book);
-      setChapter(Number(chapter));
-      setVerse(Number(verse));
-      updateInput(book, Number(chapter), verse);
-      setNavigatedVerse(verse.toString());
-      if (live) {
-        setHighlightVerse(verse.toString());
-      }
-      sendVerseToHomePage(
-        currentBook,
-        chapter.toString(),
-        verse.toString(),
         text,
-        !live,
-      );
-    }
-  };
+      };
+      const displayData: DisplayProps = {
+        type: "scripture",
+        data: [verseData],
+        index: 0,
+      };
+      setPreview(displayData);
+      if (!isPreview) {
+        setLive(displayData);
+      }
+      // console.log(window.electronAPI, "just sent this info: ", verseData)
+      // window.electronAPI.sendVerseUpdate(verseData)
+      // const event = new Event("verseHighlighted");
+      // window.dispatchEvent(event);
+    },
+    [setLive, setPreview, version],
+  );
 
-  function updateChapterDisplayState(
-    newBook: string = bookName,
-    newChapter: string = chapter.toString(),
-    newVersion: string = version,
-  ) {
-    window.electronAPI
-      .fetchChapter({
-        book: newBook,
-        chapter: newChapter,
-        version: newVersion,
-      })
-      .then((result) => {
-        console.log("Updated Chapters: ", result);
-        setDisplayChapter(result);
-      });
-  }
+  const changeScripture: ChangeScriptureFn = useCallback(
+    (book, chapter, verse, text = "", live = true) => {
+      const currentBook = getName(book);
+      console.log(verse);
+      if (currentBook) {
+        setBook(book);
+        setChapter(Number(chapter));
+        setVerse(Number(verse));
+        updateInput(book, Number(chapter), verse);
+        setNavigatedVerse(verse.toString());
+        if (live) {
+          setHighlightVerse(verse.toString());
+        }
+        sendVerseToHomePage(
+          currentBook,
+          chapter.toString(),
+          verse.toString(),
+          text,
+          !live,
+        );
+      }
+    },
+    [sendVerseToHomePage, updateInput],
+  );
+
+  const updateChapterDisplayState = useCallback(
+    (
+      newBook: string = bookName,
+      newChapter: string = chapter.toString(),
+      newVersion: string = version,
+    ) => {
+      window.electronAPI
+        .fetchChapter({
+          book: newBook,
+          chapter: newChapter,
+          version: newVersion,
+        })
+        .then((result) => {
+          console.log("Updated Chapters: ", result);
+          setDisplayChapter(result);
+        });
+    },
+    [bookName, chapter, version],
+  );
 
   useEffect(() => {
     window.electronAPI.fetchChapterCounts().then((result) => {
       setBookNames(Object.keys(result).sort());
     });
     updateChapterDisplayState();
-  }, []);
+  }, [updateChapterDisplayState]);
 
   useEffect(() => {
     const channel = new BroadcastChannel("live-change");
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (panelFocus !== "scripture") return;
+
       if (e.ctrlKey && e.key === "c") {
         // Toggle hide/show scripture on Ctrl + C
         const shouldHide = !isHidden;
@@ -238,8 +233,19 @@ export default function ScriptureSelection({
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navigatedVerse, highlightVerse, book, chapter, verse, isHidden]); // changeScripture, channel, sendVerseToHomePage
+  }, [
+    navigatedVerse,
+    highlightVerse,
+    book,
+    chapter,
+    verse,
+    panelFocus,
+    isHidden,
+    setNavigatedVerse,
+    updateInput,
+    changeScripture,
+    setHidden,
+  ]); // changeScripture, channel, sendVerseToHomePage
 
   useEffect(() => {
     if (highlightVerse) {
@@ -357,7 +363,14 @@ export default function ScriptureSelection({
       getVerse()?.text,
       true,
     );
-  }, [navigatedVerse]);
+  }, [
+    navigatedVerse,
+    sendVerseToHomePage,
+    displayChapter,
+    bookName,
+    chapter,
+    verse,
+  ]);
 
   useLayoutEffect(() => {
     if (navigatedVerse) {

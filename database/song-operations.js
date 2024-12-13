@@ -5,7 +5,7 @@ const fetchAllSongs = () => {
   const response = songsDB
     .prepare(
       `
-    SELECT id, title, author, category, created_at, updated_at
+    SELECT id, title, author, copyright, created_at, updated_at
     FROM songs
     ORDER BY title ASC
     `,
@@ -86,7 +86,7 @@ const filterSongsByPhrase = (phrase) => {
   const response = songsDB
     .prepare(
       `
-    SELECT DISTINCT s.id, s.title, s.author, s.category
+    SELECT DISTINCT s.id, s.title, s.author, s.copyright
     FROM songs s
     JOIN song_lyrics sl ON s.id = sl.song_id
     WHERE sl.lyrics LIKE ?

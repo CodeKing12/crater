@@ -1,16 +1,6 @@
 "use client";
 
-import React, {
-  useState,
-  useEffect,
-  ChangeEvent,
-  FormEvent,
-  useRef,
-  useLayoutEffect,
-} from "react";
-import { VerseData, BibleData, BookInfo, CV } from "@/utils/types";
-import { getName, sendMessage } from "@/utils";
-import chapterAndVerse from "@/utils/parser/cv";
+import React, { useState, useEffect } from "react";
 import { Box, SimpleGrid } from "@chakra-ui/react";
 import ControlsMain from "@/components/app/ControlsMain";
 import ScheduleComponent from "@/components/app/ScheduleComponent";
@@ -19,13 +9,14 @@ import LiveComponent from "@/components/app/LiveComponent";
 
 export interface DisplayProps {
   type: "scripture" | "song" | "image" | "video" | "message";
-  data: any;
+  data: any[];
+  index: number;
 }
 
 const BibleViewer = () => {
-  const [preview, setPreview] = useState<DisplayProps[]>();
-  const [live, setLive] = useState<DisplayProps[]>();
-  const [isHidden, setHidden] = useState(false); // Control whether scripture is hidden or shown
+  const [preview, setPreview] = useState<DisplayProps>();
+  const [live, setLive] = useState<DisplayProps>();
+  // const [isHidden, setHidden] = useState(false); // Control whether scripture is hidden or shown
 
   useEffect(() => {
     // const handleKeyDown = (e: KeyboardEvent) => {
@@ -53,10 +44,10 @@ const BibleViewer = () => {
           <ScheduleComponent />
         </Box>
         <Box h="full" border="1px solid" borderColor="gray.700">
-          <PreviewComponent previewItems={preview} setLive={setLive} />
+          <PreviewComponent previewItem={preview} setLive={setLive} />
         </Box>
         <Box h="full" border="1px solid" borderColor="gray.700">
-          <LiveComponent liveItems={live} />
+          <LiveComponent liveItem={live} />
         </Box>
       </SimpleGrid>
       <Box w="full" h="4/12" pos="absolute" bottom="0">

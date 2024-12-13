@@ -1,14 +1,14 @@
 "use client";
 
-// import { fetchBibleData } from "@/utils";
-import { BibleData } from "@/utils/types";
 import { useEffect, useState } from "react";
-// import NKJVBibleJSON from "@/bibles/bible_data.json";
+import { SongLyric } from "../../interface";
+import RenderLyric from "@/components/app/RenderLyric";
+import RenderScripture from "@/components/app/RenderScripture";
 
 // import { DM_Sans, Space_Grotesk } from "next/font/google"
 // const NKJVBible: Record<string, any> = NKJVBibleJSON;
 
-interface HighlightedVerse {
+export interface HighlightedVerse {
   book: string;
   chapter: string;
   verse: string;
@@ -16,16 +16,22 @@ interface HighlightedVerse {
   text: string;
 }
 
-const defaultScripture: HighlightedVerse = {
-  book: "",
-  chapter: "",
-  verse: "",
-  version: "",
-  text: "",
-};
+// const defaultScripture: HighlightedVerse = {
+//   book: "",
+//   chapter: "",
+//   verse: "",
+//   version: "",
+//   text: "",
+// };
 
 interface CommunicationObj {
   isHidden: boolean;
+}
+
+interface DisplayInfo {
+  type: "scripture" | "song";
+  scripture?: HighlightedVerse;
+  song?: SongLyric;
 }
 
 // const dmSans = DM_Sans({weight: "variable", style: "normal", display: "swap", subsets: ["latin", "latin-ext"] })
@@ -34,8 +40,9 @@ interface CommunicationObj {
 export default function Home() {
   // const [highlightedVerse, setHighlightedVerse] = useState<HighlightedVerse | null>(null);
   // const [bibleData] = useState<BibleData>(NKJVBible);
-  const [scriptureData, setScriptureData] =
-    useState<HighlightedVerse>(defaultScripture);
+  const [displayData, setDisplayData] = useState<DisplayInfo>({
+    type: "scripture",
+  });
   const [comms, setComms] = useState<CommunicationObj>({ isHidden: false });
 
   useEffect(() => {
@@ -55,20 +62,28 @@ export default function Home() {
     //   };
     // }
 
-    // Use a broadcast channel to pass scripture changes and other info
-    const channel = new BroadcastChannel("live-change");
-    channel.addEventListener("message", (e) => {
+    const handleLiveMessage = (e: MessageEvent) => {
       const msgInfo = e.data;
       console.log("RECEIVED BROADCAST MESSAGE: ", msgInfo);
       if (msgInfo?.type === "message") {
         setComms((former) => ({ ...former, ...msgInfo.data }));
+      } else {
+        console.log(msgInfo);
+        setDisplayData(msgInfo);
       }
-      if (msgInfo?.type === "scripture") {
-        setScriptureData(msgInfo.data);
-        console.log("Showing");
-        // setComms((former) => ({ ...former, isHidden: false }));
-      }
-    });
+      // if (msgInfo?.type === "scripture") {
+      //   console.log("Showing");
+      //   // setComms((former) => ({ ...former, isHidden: false }));
+      // }
+    };
+
+    // Use a broadcast channel to pass scripture changes and other info
+    const channel = new BroadcastChannel("update-live-display");
+    channel.addEventListener("message", handleLiveMessage);
+
+    return () => {
+      channel.removeEventListener("message", handleLiveMessage);
+    };
   }, []);
 
   return (
@@ -76,19 +91,14 @@ export default function Home() {
       className={`h-full max-w-screen max-h-screen flex flex-col justify-between bg-transparent text-white duration-500 ease-in-out opacity-100 translate-y-0 ${comms?.isHidden ? "" : ""}`}
     >
       <div></div>
-      <div className={`max-w-full ${scriptureData.verse ? "" : "opacity-0"}`}>
-        <div
-          className={`capitalize reference text-4xl font-black pl-24 pr-7 py-3 bg-white text-black w-1/2 duration-300 ease-linear ${comms?.isHidden ? "!text-opacity-0 !opacity-0 !translate-x-12" : ""}`}
-        >
-          {scriptureData?.book} {scriptureData?.chapter}:{scriptureData?.verse}{" "}
-          {scriptureData?.version?.toUpperCase()}
-        </div>
-        <div
-          className={`verse text-4xl font-semibold outline-[30px] leading-[1.35] tracking-wide pl-20 pr-10 pt-10 pb-10 bg-black bg-opacity-80 duration-300 ease-linear delay-100 ${comms?.isHidden ? "!text-opacity-0 !opacity-0 !-translate-x-12" : ""}`}
-        >
-          {scriptureData.text}
-        </div>
-      </div>
+      {displayData.type === "scripture" ? (
+        <RenderScripture
+          scriptureData={displayData?.scripture}
+          hide={comms?.isHidden}
+        />
+      ) : (
+        <RenderLyric songData={displayData?.song} hide={comms?.isHidden} />
+      )}
     </main>
   );
 }

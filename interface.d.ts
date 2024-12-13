@@ -8,7 +8,7 @@ export interface SongData {
   id: number;
   title: string;
   author: string | null;
-  category: string | null;
+  copyright: string | null;
   created_at: string;
   updated_at: string;
 }
