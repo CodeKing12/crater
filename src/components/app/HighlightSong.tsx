@@ -1,21 +1,38 @@
 import { Box } from "@chakra-ui/react";
 import { SongData } from "../../../interface";
-import { CSSProperties } from "react";
+import { CSSProperties, useEffect } from "react";
 
 interface Props extends SongData {
+  renderIndex: number;
   style: CSSProperties;
+  navigatedSong: number;
   onClick: () => void;
 }
 
-const HighlightSong = ({ title, author, copyright, style, onClick }: Props) => {
+const HighlightSong = ({
+  renderIndex,
+  navigatedSong,
+  title,
+  author,
+  copyright,
+  style,
+  onClick,
+}: Props) => {
+  useEffect(() => {
+    console.log("DEBUG SONGS: ", renderIndex, navigatedSong);
+  }, [renderIndex, navigatedSong]);
+
   return (
     <Box
+      userSelect="none"
       fontSize="14px"
       pl="4"
       cursor="pointer"
       py="2"
       style={style}
       onClick={onClick}
+      bgColor={renderIndex === navigatedSong ? "#1E90FF" : ""}
+      data-song={`song-${renderIndex}`}
     >
       <Box>{title}</Box>
       <Box>{author}</Box>

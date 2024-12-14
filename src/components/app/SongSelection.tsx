@@ -1,7 +1,13 @@
 import { Box, Flex } from "@chakra-ui/react";
 import SearchInput from "../ui/search-input";
 import HighlightSong from "./HighlightSong";
-import { useCallback, useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { SongData } from "../../../interface";
 import { FixedSizeList } from "react-window";
 import { UpdateDisplayProps } from "./ControlsMain";
@@ -12,6 +18,7 @@ type Props = UpdateDisplayProps;
 export const SongSelection = ({ setPreview, setLive }: Props) => {
   const [allSongs, setAllSongs] = useState<SongData[]>([]);
   const [navigatedSong, setNavigatedSong] = useState<number>(0); // New state for navigated verse
+  const songListRef = useRef<HTMLDivElement | null>(null);
   const { panelFocus } = useAppInfo();
 
   useEffect(() => {
@@ -51,13 +58,13 @@ export const SongSelection = ({ setPreview, setLive }: Props) => {
       if (e.key === "ArrowDown") {
         // Navigate to the next verse
         const navigNext = navigatedSong + 1;
-        if (navigNext <= allSongs.length) {
+        if (navigNext < allSongs.length) {
           setNavigatedSong(navigNext);
         }
       } else if (e.key === "ArrowUp") {
         // Navigate to the previous verse
         const navigPrev = navigatedSong - 1;
-        if (navigPrev > 0) {
+        if (navigPrev >= 0) {
           setNavigatedSong(navigPrev);
         }
       } else if (e.key === "Enter") {
@@ -75,6 +82,23 @@ export const SongSelection = ({ setPreview, setLive }: Props) => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigatedSong, allSongs, panelFocus, setNavigatedSong, updateLiveSong]); // changeScripture, channel, sendVerseToHomePage
+
+  useLayoutEffect(() => {
+    if (navigatedSong) {
+      // requestAnimationFrame(() => {
+      const songButton = songListRef.current?.querySelector(
+        `div[data-song="song-${navigatedSong}"]`,
+      ) as HTMLButtonElement | null;
+      console.log("DEBUG SCROLL", songButton, songListRef);
+
+      if (songButton && songListRef.current) {
+        songListRef.current.scrollTop =
+          songButton.offsetTop - songListRef.current.clientHeight / 2;
+        // songButton.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      // });
+    }
+  }, [navigatedSong]);
 
   return (
     <Flex h="full" pos="relative">
@@ -96,20 +120,24 @@ export const SongSelection = ({ setPreview, setLive }: Props) => {
         border="1px solid"
         borderColor="gray.700"
       >
-        <FixedSizeList
-          itemCount={allSongs.length}
-          itemSize={30}
-          width="100%"
-          height={214}
-        >
-          {({ index, style }) => (
-            <HighlightSong
-              {...allSongs[index]}
-              style={style}
-              onClick={() => updateLiveSong(index)}
-            />
-          )}
-        </FixedSizeList>
+        <Box maxW="full" height="full" ref={songListRef}>
+          <FixedSizeList
+            itemCount={allSongs.length}
+            itemSize={30}
+            width="100%"
+            height={214}
+          >
+            {({ index, style }) => (
+              <HighlightSong
+                {...allSongs[index]}
+                renderIndex={index}
+                navigatedSong={navigatedSong}
+                style={style}
+                onClick={() => setNavigatedSong(index)}
+              />
+            )}
+          </FixedSizeList>
+        </Box>
         {/* <Table.ScrollArea maxW="full" height="full">
           <Table.Root size="sm" variant="outline" stickyHeader showColumnBorder>
             <Table.Header>

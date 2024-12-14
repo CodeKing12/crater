@@ -25,7 +25,7 @@ import { useAppInfo } from "@/providers/AppInfo";
 export type ChangeScriptureFn = (
   book: BookInfo,
   chapter: string,
-  verse: string,
+  verse: number,
   text?: string,
   live?: boolean,
 ) => void;
@@ -59,8 +59,8 @@ export default function ScriptureSelection({
   const [input, setInput] = useState("");
   const [filteredBooks, setFilteredBooks] = useState<string[]>([]);
   const [displayChapter, setDisplayChapter] = useState<VerseData[]>([]);
-  const [highlightVerse, setHighlightVerse] = useState<string | null>(null);
-  const [navigatedVerse, setNavigatedVerse] = useState<string | null>(null); // New state for navigated verse
+  const [highlightVerse, setHighlightVerse] = useState<number | null>(null);
+  const [navigatedVerse, setNavigatedVerse] = useState<number | null>(null); // New state for navigated verse
   const [bookNames, setBookNames] = useState<string[]>([]);
   const [book, setBook] = useState<BookInfo>(defaultBook);
   const bookName = useMemo(() => getName(book), [book]);
@@ -72,8 +72,8 @@ export default function ScriptureSelection({
   const { panelFocus } = useAppInfo();
 
   useEffect(() => {
-    console.log("NAVIG VERSE: ", navigatedVerse);
-  }, [navigatedVerse]);
+    console.log("NAVIG VERSE: ", navigatedVerse, navigatedVerse === verse);
+  }, [navigatedVerse, verse]);
 
   const updateInput = useCallback(
     (book: BookInfo, chapter: number, verse: number | string) => {
@@ -134,9 +134,9 @@ export default function ScriptureSelection({
         setChapter(Number(chapter));
         setVerse(Number(verse));
         updateInput(book, Number(chapter), verse);
-        setNavigatedVerse(verse.toString());
+        setNavigatedVerse(verse);
         if (live) {
-          setHighlightVerse(verse.toString());
+          setHighlightVerse(verse);
         }
         sendVerseToHomePage(
           currentBook,
@@ -200,21 +200,15 @@ export default function ScriptureSelection({
         setHidden(shouldHide);
       } else if (e.key === "ArrowDown") {
         // Navigate to the next verse
-        const nextVerse = (
-          parseInt(navigatedVerse || highlightVerse || "0") + 1
-        ).toString();
-        if (
-          parseInt(nextVerse) <= (book?.versesPerChapter?.[chapter - 1] ?? 1)
-        ) {
+        const nextVerse = (navigatedVerse || highlightVerse || 0) + 1;
+        if (nextVerse <= (book?.versesPerChapter?.[chapter - 1] ?? 1)) {
           setNavigatedVerse(nextVerse);
           updateInput(book, chapter, nextVerse);
         }
       } else if (e.key === "ArrowUp") {
         // Navigate to the previous verse
-        const prevVerse = (
-          parseInt(navigatedVerse || highlightVerse || "2") - 1
-        ).toString();
-        if (parseInt(prevVerse) > 0) {
+        const prevVerse = (navigatedVerse || highlightVerse || 2) - 1;
+        if (prevVerse > 0) {
           setNavigatedVerse(prevVerse);
           updateInput(book, chapter, prevVerse);
         }
@@ -301,7 +295,7 @@ export default function ScriptureSelection({
     if (newVerse) {
       setVerse(newVerse);
       console.log("NEWVERSE: ", newVerse);
-      setNavigatedVerse(newVerse.toString());
+      setNavigatedVerse(newVerse);
     }
 
     const cvBookName = getName(cv?.book);
@@ -321,7 +315,7 @@ export default function ScriptureSelection({
     e.preventDefault();
     console.log("Running Handle Submit");
     updateInput(book, chapter, verse);
-    let verseToHighlight: string | null = verse.toString();
+    let verseToHighlight: number | null = verse;
 
     // if (bibleData[bookName] && bibleData[bookName][chapter]) {
     if (isValidBookAndChapter(bookName, chapter, chapterData).valid) {
@@ -334,7 +328,7 @@ export default function ScriptureSelection({
       // );
 
       if (verse) {
-        verseToHighlight = verse.toString();
+        verseToHighlight = verse;
         sendVerseToHomePage(bookName, chapter.toString(), verse.toString());
       } else {
         verseToHighlight = null;
@@ -349,8 +343,8 @@ export default function ScriptureSelection({
   };
 
   useEffect(() => {
-    if (navigatedVerse === verse.toString()) return;
-    const navigVerse = navigatedVerse ?? verse.toString();
+    if (navigatedVerse === verse) return;
+    const navigVerse = (navigatedVerse ?? verse).toString();
 
     function getVerse() {
       return displayChapter.find(({ verse }) => verse === navigVerse);
@@ -443,14 +437,14 @@ export default function ScriptureSelection({
                     changeScripture(
                       book,
                       chapter.toString(),
-                      verse,
+                      parseInt(verse),
                       text,
                       false,
                     );
                   }}
                   book={book}
                   chapter={chapter}
-                  verseNum={verse}
+                  verseNum={parseInt(verse)}
                   bibleVersion={version}
                   highlightVerse={highlightVerse}
                   navigatedVerse={navigatedVerse}

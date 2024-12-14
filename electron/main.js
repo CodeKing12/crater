@@ -11,8 +11,12 @@ const {
   fetchChapter,
   fetchChapterCounts,
 } = require("../database/bible-operations");
-const { fetchAllSongs, fetchSongLyrics, updateSong, filterSongsByPhrase } =
-  require("../database/song-operations").default;
+const {
+  fetchAllSongs,
+  fetchSongLyrics,
+  updateSong,
+  filterSongsByPhrase,
+} = require("../database/song-operations");
 // const { load } = require("ffi-rs");
 
 // // Load the NDI library
@@ -189,18 +193,18 @@ ipcMain.handle("fetch-chapter-counts", () => {
   return counts;
 });
 
-ipcMain.handle("fetch-chapter", (chapterInfo) => {
+ipcMain.handle("fetch-chapter", (_, chapterInfo) => {
   console.log("Code - Fetching Scripture Chapter Data", chapterInfo);
   // console.log(fetchChapter(chapterInfo));
   return fetchChapter(chapterInfo);
 });
 
-ipcMain.handle("fetch-scripture", (scriptureInfo) => {
+ipcMain.handle("fetch-scripture", (_, scriptureInfo) => {
   console.log("Fetch Scripture Arguments: ", scriptureInfo);
   return fetchScripture(scriptureInfo);
 });
 
-ipcMain.handle("fetch-songs", () => fetchAllSongs());
-ipcMain.handle("fetch-lyrics", (songId) => fetchSongLyrics(songId));
-ipcMain.handle("update-song", (newInfo) => updateSong(newInfo));
-ipcMain.handle("filter-songs", (phrase) => filterSongsByPhrase(phrase));
+ipcMain.handle("fetch-songs", fetchAllSongs);
+ipcMain.handle("fetch-lyrics", (_, songId) => fetchSongLyrics(songId));
+ipcMain.handle("update-song", (_, newInfo) => updateSong(newInfo));
+ipcMain.handle("filter-songs", (_, phrase) => filterSongsByPhrase(phrase));

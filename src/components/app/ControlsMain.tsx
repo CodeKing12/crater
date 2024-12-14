@@ -30,15 +30,20 @@ export default function ControlsMain({ setPreview, setLive }: Props) {
   const panelRootRef = useRef<HTMLDivElement | null>(null);
   const currentTab = useRef(DEFAULT_TAB);
 
-  function changeKeyboardFocus(details: { value: string }) {
-    console.log("Changing Focus: ", details.value);
-    setPanelFocus(details.value);
+  function changeKeyboardFocus({ value }: { value: string }) {
+    console.log("Changing Focus: ", value);
+    currentTab.current = value;
+    setPanelFocus(value);
   }
 
   useEffect(() => {
     function handleComponentFocus() {
       if (panelFocus !== currentTab.current) {
-        console.log("ControlsMain Component Focused");
+        console.log(
+          "ControlsMain Component Focused, Current: ",
+          panelFocus,
+          currentTab.current,
+        );
         setPanelFocus(currentTab.current);
       }
     }
@@ -47,8 +52,9 @@ export default function ControlsMain({ setPreview, setLive }: Props) {
       panelRootRef.current?.addEventListener("click", handleComponentFocus);
     }
 
+    const cleanupRef = panelRootRef.current;
     return () => {
-      panelRootRef.current?.removeEventListener("click", handleComponentFocus);
+      cleanupRef?.removeEventListener("click", handleComponentFocus);
     };
   }, [setPanelFocus, panelRootRef, panelFocus]);
 

@@ -72,7 +72,7 @@ def process_directory(directory_path):
     return parsed_files
 
 # Example usage
-directory_path = "wsg-songs"  # Replace with your directory path
+directory_path = "gccc-songs"  # Replace with your directory path
 parsed_data = process_directory(directory_path)
 
 export_obj = {}
@@ -81,5 +81,5 @@ for file, data in parsed_data.items():
     export_obj[file.strip(".txt")] = data
     print(type(data))
 
-with open("wsg-songs.json", "w") as export_file:
+with open("gccc-songs.json", "w") as export_file:
     json.dump(export_obj, export_file)

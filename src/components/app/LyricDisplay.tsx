@@ -31,7 +31,13 @@ export default function LyricDisplay({
   }, [setSize, index, windowWidth]);
 
   return (
-    <Box px="4" py={1} ref={rowRef} style={{ ...style, height: "unset" }}>
+    <Box
+      userSelect="none"
+      px="4"
+      py={1}
+      ref={rowRef}
+      style={{ ...style, height: "unset" }}
+    >
       <Card.Root
         size="sm"
         cursor="pointer"

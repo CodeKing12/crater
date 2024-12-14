@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 
 // Load JSON file with songs and lyrics
-const jsonFilePath = path.resolve(__dirname, "../scripts/wsg-songs.json");
+const jsonFilePath = path.resolve(__dirname, "../scripts/gccc-songs.json");
 const songsData = JSON.parse(fs.readFileSync(jsonFilePath, "utf-8"));
 
 // Prepare SQL statements

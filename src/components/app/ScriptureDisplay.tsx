@@ -36,7 +36,13 @@ export default function ScriptureDisplay({
   }, [setSize, index, windowWidth]);
 
   return (
-    <Box ref={rowRef} px="4" py={1} style={{ ...style, height: "unset" }}>
+    <Box
+      userSelect="none"
+      ref={rowRef}
+      px="4"
+      py={1}
+      style={{ ...style, height: "unset" }}
+    >
       <Card.Root
         size="sm"
         cursor="pointer"

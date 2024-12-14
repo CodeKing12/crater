@@ -35,23 +35,26 @@ export default function PreviewComponent({
     listRef.current?.resetAfterIndex(index);
   }, []);
   const [windowWidth] = useWindowResize();
-  const [navigatedLyric, setnavigatedLyric] = useState<number>(); // New state for navigated verse
+  const [navigatedItem, setnavigatedItem] = useState<number>(); // New state for navigated verse
   const { panelFocus, setPanelFocus } = useAppInfo();
 
-  function pushToLive(index: number) {
-    if (previewItem?.data) {
-      setnavigatedLyric(index);
-      setLive({
-        type: previewItem.type,
-        data: previewItem.data,
-        index,
-      });
-    }
-  }
+  const pushToLive = useCallback(
+    (index: number) => {
+      if (previewItem?.data) {
+        setnavigatedItem(index);
+        setLive({
+          type: previewItem.type,
+          data: previewItem.data,
+          index,
+        });
+      }
+    },
+    [previewItem, setLive],
+  );
 
   useEffect(() => {
-    console.log("Lyric: ", navigatedLyric);
-  }, [navigatedLyric]);
+    console.log("Lyric: ", navigatedItem);
+  }, [navigatedItem]);
 
   useEffect(() => {
     function handleComponentFocus() {
@@ -64,8 +67,9 @@ export default function PreviewComponent({
       listParentRef.current?.addEventListener("click", handleComponentFocus);
     }
 
+    const cleanupRef = listParentRef.current;
     return () => {
-      listParentRef.current?.removeEventListener("click", handleComponentFocus);
+      cleanupRef?.removeEventListener("click", handleComponentFocus);
     };
   }, [setPanelFocus, listParentRef, panelFocus]);
 
@@ -76,21 +80,21 @@ export default function PreviewComponent({
 
       if (e.key === "ArrowDown") {
         // Navigate to the next verse
-        const navigNext = (navigatedLyric ?? 0) + 1;
-        if (navigNext <= previewItem?.data.length) {
-          setnavigatedLyric(navigNext);
+        const navigNext = (navigatedItem ?? 0) + 1;
+        if (navigNext < previewItem?.data.length) {
+          setnavigatedItem(navigNext);
         }
       } else if (e.key === "ArrowUp") {
         // Navigate to the previous verse
-        const navigPrev = (navigatedLyric ?? 0) - 1;
+        const navigPrev = (navigatedItem ?? 0) - 1;
         if (navigPrev >= 0) {
-          setnavigatedLyric(navigPrev);
+          setnavigatedItem(navigPrev);
         }
       } else if (e.key === "Enter") {
         // Confirm and highlight the current verse on Enter
-        if (navigatedLyric) {
-          console.log(navigatedLyric);
-          pushToLive(navigatedLyric);
+        if (navigatedItem) {
+          console.log(navigatedItem);
+          pushToLive(navigatedItem);
         }
       }
     };
@@ -99,7 +103,7 @@ export default function PreviewComponent({
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [panelFocus, previewItem, pushToLive, setnavigatedLyric, navigatedLyric]);
+  }, [panelFocus, previewItem, pushToLive, setnavigatedItem, navigatedItem]);
 
   // function getItemSize(index: number) {
   //   if (previewItem?.type == "song") {
@@ -113,7 +117,7 @@ export default function PreviewComponent({
   const getItemSize = (index: number) => sizeMap.current[index] || 100;
 
   useEffect(() => {
-    setnavigatedLyric(0);
+    setnavigatedItem(0);
   }, [previewItem]);
 
   return (
@@ -134,24 +138,24 @@ export default function PreviewComponent({
                   key={index}
                   index={index}
                   scripture={previewItem.data[index]}
-                  onScriptureClick={() => setnavigatedLyric(index)}
+                  onScriptureClick={() => setnavigatedItem(index)}
                   onScriptureDoubleClick={() => pushToLive(index)}
                   style={style}
                   setSize={setSize}
                   windowWidth={windowWidth}
-                  isCurrentNavig={navigatedLyric === index}
+                  isCurrentNavig={navigatedItem === index}
                 />
               ) : previewItem?.type === "song" ? (
                 <LyricDisplay
                   key={index}
                   index={index}
                   lyric={previewItem.data[index]}
-                  onLyricClick={() => setnavigatedLyric(index)}
+                  onLyricClick={() => setnavigatedItem(index)}
                   onLyricDoubleClick={() => pushToLive(index)}
                   style={style}
                   setSize={setSize}
                   windowWidth={windowWidth}
-                  isCurrentNavig={navigatedLyric === index}
+                  isCurrentNavig={navigatedItem === index}
                 />
               ) : (
                 ""

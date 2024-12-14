@@ -4,13 +4,13 @@ import { MouseEventHandler } from "react";
 import { Table } from "@chakra-ui/react";
 
 interface HighlightVerseProps {
-  verseNum: string;
+  verseNum: number;
   book: BookInfo;
   chapter: number;
   bibleVersion: string;
   onVerseClick: MouseEventHandler;
-  highlightVerse: string | null;
-  navigatedVerse: string | null;
+  highlightVerse: number | null;
+  navigatedVerse: number | null;
   verseText: string;
 }
 
@@ -24,8 +24,6 @@ export default function HighlightVerse({
   navigatedVerse,
   verseText,
 }: HighlightVerseProps) {
-  //   const { ref, focused } = useFocusable();
-
   return (
     // <Box
     //   className={`text-left w-full flex gap-2 py-2 px-4 outline-none hover:bg-gray-700 ${verseNum === highlightVerse ? "bg-[#228B22] hover:bg-[#228B22]" : verseNum === navigatedVerse ? "bg-[#1E90FF] hover:bg-[#1E90FF]" : ""} cursor-pointer`}
@@ -57,6 +55,7 @@ export default function HighlightVerse({
     <>
       <Table.Row
         tabIndex={-1}
+        userSelect="none"
         data-verse={`${getName(book)}-${chapter}-${verseNum}`}
         onClick={onVerseClick}
         maxW="full"

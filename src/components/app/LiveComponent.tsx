@@ -55,8 +55,9 @@ export default function LiveComponent({ liveItem }: LiveCompProps) {
       listParentRef.current?.addEventListener("click", handleComponentFocus);
     }
 
+    const cleanupRef = listParentRef.current;
     return () => {
-      listParentRef.current?.removeEventListener("click", handleComponentFocus);
+      cleanupRef?.removeEventListener("click", handleComponentFocus);
     };
   }, [setPanelFocus, listParentRef, panelFocus]);
 
@@ -68,7 +69,7 @@ export default function LiveComponent({ liveItem }: LiveCompProps) {
       if (e.key === "ArrowDown") {
         // Navigate to the next verse
         const navigNext = (navigatedLyric ?? 0) + 1;
-        if (navigNext <= liveItem?.data.length) {
+        if (navigNext < liveItem?.data.length) {
           displayLiveItem(navigNext);
         }
       } else if (e.key === "ArrowUp") {
@@ -90,7 +91,7 @@ export default function LiveComponent({ liveItem }: LiveCompProps) {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [liveItem, panelFocus, setnavigatedLyric, displayLiveItem]);
+  }, [liveItem, panelFocus, displayLiveItem, navigatedLyric]);
 
   useEffect(() => {
     if (liveItem) {
