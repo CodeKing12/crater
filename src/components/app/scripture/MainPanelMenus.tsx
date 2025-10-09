@@ -7,13 +7,13 @@ import { Menu } from "~/components/ui/menu";
 import { useAppContext } from "~/layouts/AppContext";
 
 interface SongPanelContextMenuCompProps {
-    onSongEdit: () => void;
+    // onSongEdit: () => void;
 }
 
 export const MainDisplayMenuContent = (props: SongPanelContextMenuCompProps) => <Menu.Content>
     <Menu.Item
         value="edit-song"
-    onClick={props.onSongEdit}
+    // onClick={props.onSongEdit}
     >
         Edit Song
     </Menu.Item>
