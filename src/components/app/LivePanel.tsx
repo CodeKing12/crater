@@ -4,32 +4,26 @@ import { Menu } from "../ui/menu";
 import { Portal } from "solid-js/web";
 import { TbChevronDown, TbChevronRight, TbLayoutGrid } from "solid-icons/tb";
 import { useAppContext } from "~/layouts/AppContext";
-import { PREVIEW_INDEX_WIDTH, PREVIEW_PANEL_FOCUS_NAME } from "~/utils/constants";
+import { PREVIEW_INDEX_WIDTH, LIVE_PANEL_FOCUS_NAME } from "~/utils/constants";
 import { useFocusContext } from "~/layouts/FocusContext";
 import { createEffect, createMemo, For, Match, Switch } from "solid-js";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import ContextMenu from "./ContextMenu";
 import ItemDisplay from "./ItemDisplay";
 
-export default function PreviewPanel() {
+export default function LivePanel() {
     const { appStore, setAppStore } = useAppContext();
-    const previewData = createMemo(() => appStore.previewItem?.data ?? [])
-    const itemType = createMemo(() => appStore.previewItem?.type);
-
-    const pushToLive = (focusId?: number | null) => {
-        // const focusId = itemIndex;
-        if (typeof focusId !== "number") return; // || !isCurrentPanel()
-        setAppStore("liveItem", { ...appStore.previewItem, index: focusId });
-    }
+    const liveData = createMemo(() => appStore.liveItem?.data ?? [])
+    const itemType = createMemo(() => appStore.liveItem?.type);
 
     const { subscribeEvent, changeFocusPanel, currentPanel } = useFocusContext();
     const { name, coreFocusId, fluidFocusId, changeFocus } = subscribeEvent({
-        name: PREVIEW_PANEL_FOCUS_NAME,
+        name: LIVE_PANEL_FOCUS_NAME,
         defaultCoreFocus: 0,
         defaultFluidFocus: 0,
         handlers: {
             "ArrowDown": ({ coreFocusId, fluidFocusId, changeFocus, changeCoreFocus, changeFluidFocus }) => {
-                const newCoreFocusId = Math.min((fluidFocusId ?? 0) + 1, previewData().length);
+                const newCoreFocusId = Math.min((fluidFocusId ?? 0) + 1, liveData().length);
                 changeFluidFocus(newCoreFocusId);
             },
             "ArrowUp": ({ coreFocusId, fluidFocusId, changeFocus, changeCoreFocus, changeFluidFocus }) => {
@@ -48,22 +42,21 @@ export default function PreviewPanel() {
             },
             onDblClick: ({ changeFocus, focusId }) => {
                 if (typeof focusId === "number") {
-                    changeFocus(focusId);
-                    pushToLive(focusId)
+                    changeFocus(focusId)
                 }
             }
         }
     })
 
     createEffect(() => {
-        if (previewData()) {
-            changeFocus(appStore.previewItem?.index)
+        if (liveData()) {
+            changeFocus(appStore.liveItem?.index)
         }
     })
 
     let virtualizerParentRef!: HTMLDivElement
     const rowVirtualizer = createMemo(() => createVirtualizer({
-        count: previewData().length,
+        count: liveData().length,
         getScrollElement: () => virtualizerParentRef,
         estimateSize: () => 20,
         overscan: 5,
@@ -78,7 +71,7 @@ export default function PreviewPanel() {
         <Stack pos="relative" h="full" pt={7} pb="1" gap={2} ref={virtualizerParentRef}>
             <Box
                 visibility={
-                    ['image', 'video'].includes(appStore.previewItem?.type ?? "") ? 'hidden' : 'visible'
+                    ['image', 'video'].includes(appStore.liveItem?.type ?? "") ? 'hidden' : 'visible'
                 }
                 w={PREVIEW_INDEX_WIDTH}
                 h="full"
@@ -109,7 +102,7 @@ export default function PreviewPanel() {
                     >
                         <For each={rowVirtualizer().getVirtualItems()}>
                             {virtualItem => {
-                                const item = previewData()[virtualItem.index]
+                                const item = liveData()[virtualItem.index]
                                 return (
                                     <Box data-index={virtualItem.index} ref={rowVirtualizer().measureElement}>
                                         <ItemDisplay type={itemType()} index={virtualItem.index} item={item} isFocusItem={fluidFocusId() === virtualItem.index} panelName={name} isCurrentPanel={currentPanel() === name} />
@@ -138,7 +131,7 @@ export default function PreviewPanel() {
                     textOverflow="ellipsis"
                     whiteSpace="nowrap"
                 >
-                    Preview {appStore.previewItem ? `- ${appStore.previewItem.metadata?.title}` : null}
+                    Live {appStore.liveItem ? `- ${appStore.liveItem.metadata?.title}` : null}
                 </Text>
                 <HStack>
                     <Menu.Root>

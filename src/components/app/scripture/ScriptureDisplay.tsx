@@ -6,17 +6,26 @@ import type { SongLyric } from "~/types/context";
 import { getFocusableStyles } from "~/utils";
 import { defaultPalette, defaultSupportingPalette, PREVIEW_INDEX_WIDTH } from "~/utils/constants";
 
+export interface DisplayScripture {
+	book: string
+	chapter: string
+	verse: string
+	version: string
+	text: string
+}
+
 interface Props {
-    index: number;
-    lyric: SongLyric;
-    isFocusItem: boolean;
+	index: number;
+	scripture: DisplayScripture;
+	isFocusItem: boolean;
 	panelName: string;
 	isCurrentPanel: boolean;
 }
 
-export default function LyricDisplay(props: Props) {
-    return (
-        <Box
+export default function ScriptureDisplay(props: Props) {
+	const isHovered = false;
+	return (
+		<Box
 			class="disable-child-clicks transition-children-backgrounds"
 			userSelect="none"
 			py={1}
@@ -25,8 +34,8 @@ export default function LyricDisplay(props: Props) {
 			data-panel={props.panelName}
 			display="flex"
 			gap={0}
-			// onMouseEnter={() => setIsHovered(true)}
-			// onMouseLeave={() => setIsHovered(false)}
+		// onMouseEnter={() => setIsHovered(true)}
+		// onMouseLeave={() => setIsHovered(false)}
 		>
 			<Flex
 				w="full"
@@ -36,9 +45,9 @@ export default function LyricDisplay(props: Props) {
 				position="relative"
 				pl={PREVIEW_INDEX_WIDTH}
 				style={getFocusableStyles('LYRICS_PARENT_CONTAINER', props.isFocusItem, props.isCurrentPanel)}
-				// style={{
-				// 	// "background-color": props.isFocusItem ? token.var(`colors.${defaultPalette}.800`) : isHovered ? token.var(`colors.${defaultSupportingPalette}.800`) : 'transparent'
-				// }}
+			// style={{
+			// 	// "background-color": props.isFocusItem ? token.var(`colors.${defaultPalette}.800`) : isHovered ? token.var(`colors.${defaultSupportingPalette}.800`) : 'transparent'
+			// }}
 			>
 				<Box
 					w={PREVIEW_INDEX_WIDTH}
@@ -50,31 +59,29 @@ export default function LyricDisplay(props: Props) {
 					bottom={0}
 					top={0}
 					style={getFocusableStyles('LYRICS_INDEX_CONTAINER', props.isFocusItem, props.isCurrentPanel)}
-					// bgColor={
-					// 	props.isFocusItem ? `${defaultPalette}.700` : isHovered ? `${defaultPalette}.700/50` : 'gray.800'
-					// }
+				// bgColor={
+				// 	props.isFocusItem ? `${defaultPalette}.700` : isHovered ? `${defaultPalette}.700/50` : 'gray.800'
+				// }
 				>
 					<Text>{props.index + 1}</Text>
 				</Box>
 				<Stack gap={0}>
-					<Show when={props.lyric.label}>
-						<Box px={2} pt={2}>
-							<Text
-								textTransform="capitalize"
-								style={getFocusableStyles('LYRICS_LABEL_TEXT', props.isFocusItem, props.isCurrentPanel)}
-								// color={
-								// 	props.isFocusItem
-								// 		? 'gray.100'
-								// 		: isHovered
-								// 			? 'gray.100'
-								// 			: 'initial'
-								// }
-								fontWeight={600}
-							>
-								{props.lyric.label}
-							</Text>
-						</Box>
-					</Show>
+					<Box px={2} pt={2}>
+						<Text
+							textTransform="capitalize"
+							// color={
+							// 	props.isFocusItem
+							// 		? 'gray.100'
+							// 		: isHovered
+							// 			? 'gray.100'
+							// 			: 'initial'
+							// }
+							style={getFocusableStyles('LYRICS_TEXT_CONTAINER', props.isFocusItem, props.isCurrentPanel)}
+							fontWeight={600}
+						>
+							{props.scripture.book} {props.scripture.chapter}:{props.scripture.verse}
+						</Text>
+					</Box>
 
 					<Box
 						py={2}
@@ -85,12 +92,10 @@ export default function LyricDisplay(props: Props) {
 						// }
 						fontFamily="body"
 					>
-                        <For each={props.lyric?.text}>
-                            {((line) => <Text>{line}</Text>)}
-                        </For>
+						{props.scripture.text}
 					</Box>
 				</Stack>
 			</Flex>
 		</Box>
-    )
+	)
 }
