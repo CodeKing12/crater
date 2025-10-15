@@ -5,32 +5,35 @@ import { Portal } from "solid-js/web";
 import { TbChevronDown, TbChevronRight } from "solid-icons/tb";
 import { CgDisplayGrid } from "solid-icons/cg";
 import { useAppContext } from "~/layouts/AppContext";
-import { PREVIEW_INDEX_WIDTH, PREVIEW_PANEL_FOCUS_NAME } from "~/utils/constants";
+import { PREVIEW_INDEX_WIDTH, SCHEDULE_PANEL_FOCUS_NAME } from "~/utils/constants";
 import { useFocusContext } from "~/layouts/FocusContext";
 import { createEffect, createMemo, For, Match, Switch } from "solid-js";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import ContextMenu from "./ContextMenu";
 import ItemDisplay from "./ItemDisplay";
+import ScheduleItem from "./ScheduleItem";
 
-export default function PreviewPanel() {
+export default function SchedulePanel() {
     const { appStore, setAppStore } = useAppContext();
-    const previewData = createMemo(() => appStore.previewItem?.data ?? [])
-    const itemType = createMemo(() => appStore.previewItem?.type);
+    const scheduleItems = createMemo(() => {
+        console.log("Updating schedule items: ", appStore.scheduleItems)
+        return appStore.scheduleItems
+    })
 
     const pushToLive = (focusId?: number | null) => {
         // const focusId = itemIndex;
         if (typeof focusId !== "number") return; // || !isCurrentPanel()
-        setAppStore("liveItem", { ...appStore.previewItem, index: focusId });
+        setAppStore("liveItem", { ...appStore.scheduleItems[focusId], index: focusId });
     }
 
     const { subscribeEvent, changeFocusPanel, currentPanel } = useFocusContext();
     const { name, coreFocusId, fluidFocusId, changeFocus } = subscribeEvent({
-        name: PREVIEW_PANEL_FOCUS_NAME,
+        name: SCHEDULE_PANEL_FOCUS_NAME,
         defaultCoreFocus: 0,
         defaultFluidFocus: 0,
         handlers: {
             "ArrowDown": ({ coreFocusId, fluidFocusId, changeFocus, changeCoreFocus, changeFluidFocus }) => {
-                const newCoreFocusId = Math.min((fluidFocusId ?? 0) + 1, previewData().length - 1);
+                const newCoreFocusId = Math.min((fluidFocusId ?? 0) + 1, scheduleItems().length - 1);
                 changeFluidFocus(newCoreFocusId);
             },
             "ArrowUp": ({ coreFocusId, fluidFocusId, changeFocus, changeCoreFocus, changeFluidFocus }) => {
@@ -56,15 +59,15 @@ export default function PreviewPanel() {
         }
     })
 
-    createEffect(() => {
-        if (previewData()) {
-            changeFocus(appStore.previewItem?.index)
-        }
-    })
+    // createEffect(() => {
+    //     if (scheduleItems()) {
+    //         changeFocus(appStore.scheduleItems?.index)
+    //     }
+    // })
 
     let virtualizerParentRef!: HTMLDivElement
     const rowVirtualizer = createMemo(() => createVirtualizer({
-        count: previewData().length,
+        count: scheduleItems().length,
         getScrollElement: () => virtualizerParentRef,
         estimateSize: () => 20,
         overscan: 5,
@@ -77,21 +80,6 @@ export default function PreviewPanel() {
 
     return (
         <Stack pos="relative" h="full" pt={7} pb="1" gap={2} ref={virtualizerParentRef}>
-            <Box
-                visibility={
-                    ['image', 'video'].includes(appStore.previewItem?.type ?? "") ? 'hidden' : 'visible'
-                }
-                w={PREVIEW_INDEX_WIDTH}
-                h="full"
-                bgColor="gray.800"
-                pt={2}
-                textAlign="center"
-                position="absolute"
-                left={0}
-                bottom={0}
-                top={0}
-                zIndex={0}
-            />
             <ContextMenu open={false} ref={virtualizerParentRef}>
                 <Box style={{
                     height: `${rowVirtualizer().getTotalSize()}px`,
@@ -110,11 +98,12 @@ export default function PreviewPanel() {
                     >
                         <For each={rowVirtualizer().getVirtualItems()}>
                             {virtualItem => {
-                                const item = previewData()[virtualItem.index]
+                                const item = scheduleItems()[virtualItem.index]
                                 return (
-                                    <Box data-index={virtualItem.index} ref={rowVirtualizer().measureElement}>
-                                        <ItemDisplay type={itemType()} index={virtualItem.index} item={item} isFocusItem={fluidFocusId() === virtualItem.index} panelName={name} isCurrentPanel={currentPanel() === name} />
-                                    </Box>
+                                    <ScheduleItem index={virtualItem.index} item={item} isFocusItem={fluidFocusId() === virtualItem.index} panelName={name} isCurrentPanel={currentPanel() === name} />
+                                    // <Box data-index={virtualItem.index} ref={rowVirtualizer().measureElement}>
+                                    //     <ItemDisplay type={itemType()} index={virtualItem.index} item={item} isFocusItem={fluidFocusId() === virtualItem.index} panelName={name} isCurrentPanel={currentPanel() === name} />
+                                    // </Box>
                                 )
                             }}
                         </For>
@@ -139,7 +128,7 @@ export default function PreviewPanel() {
                     textOverflow="ellipsis"
                     whiteSpace="nowrap"
                 >
-                    Preview {appStore.previewItem ? `- ${appStore.previewItem.metadata?.title}` : null}
+                    Projection Schedule
                 </Text>
                 <HStack>
                     <Menu.Root>
