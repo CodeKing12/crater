@@ -1,9 +1,9 @@
 ---
 import Welcome from "../components/Welcome.astro";
 import Layout from "../layouts/Layout.astro";
-import ProjectionDisplay from "~/components/app/projection/ProjectionDisplay";
+import LoadingDisplay from "~/components/app/LoadingDisplay";
 ---
 
 <Layout>
-	<ProjectionDisplay client:load />
+	<LoadingDisplay client:load />
 </Layout>
