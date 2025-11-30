@@ -47,6 +47,15 @@ import { Kbd } from "../../ui/kbd";
 import { VsListTree, VsSearchFuzzy } from "solid-icons/vs";
 import { updateSongEdit } from "~/utils/store-helpers";
 import { Input } from "~/components/ui/input";
+import Fuse from "fuse.js";
+
+// Initialize Fuse.js for fuzzy song search
+const fuzzy = new Fuse<SongData>([], {
+	keys: ["title", "author"],
+	threshold: 0.4, // 0 = exact match, 1 = match anything
+	ignoreLocation: true,
+	includeScore: true,
+});
 
 type SongPanelGroupValues = "all" | "collections" | "favorites";
 type SongListData = {
@@ -67,7 +76,10 @@ export default function SongSelection() {
 	const { appStore, setAppStore } = useAppContext();
 	const allSongs = createAsyncMemo(async () => {
 		const updated = appStore.songsUpdateCounter;
-		return await window.electronAPI.fetchAllSongs();
+		const songs = await window.electronAPI.fetchAllSongs();
+		// Update Fuse.js collection when songs are loaded
+		fuzzy.setCollection(songs);
+		return songs;
 	}, []);
 	// const queriedSongs = createAsyncMemo(async () => {
 	// 	return await window.electronAPI.filterSongsByPhrase(songControls.query);
@@ -87,8 +99,21 @@ export default function SongSelection() {
 			(group) => group.id === songControls.collection,
 		),
 	);
-	const applyQueryFilter = (songs: SongData[]) =>
-		songs.filter((song) => song.title.includes(songControls.query));
+
+	// Apply fuzzy search filter to songs
+	const applyQueryFilter = (songs: SongData[]): SongData[] => {
+		if (!songControls.query.trim()) {
+			return songs;
+		}
+		// Use Fuse.js for fuzzy matching
+		const results = fuzzy.search(songControls.query);
+		// Filter to only include songs from the input collection
+		const songIds = new Set(songs.map((s) => s.id));
+		return results
+			.filter((result) => songIds.has(result.item.id))
+			.map((result) => result.item);
+	};
+
 	const filteredSongs = createMemo<SongData[]>(() => {
 		const songCollection = currentCollection();
 		if (currentGroup().subGroups && songCollection) {
