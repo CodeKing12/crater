@@ -64,65 +64,47 @@ export default function SchedulePanel() {
 	};
 
 	const { subscribeEvent, changeFocusPanel, currentPanel } = useFocusContext();
-	const { name, coreFocusId, fluidFocusId, changeFocus } = subscribeEvent({
-		name: SCHEDULE_PANEL_FOCUS_NAME,
-		defaultCoreFocus: 0,
-		defaultFluidFocus: 0,
-		handlers: {
-			ArrowDown: ({
-				coreFocusId,
-				fluidFocusId,
-				changeFocus,
-				changeCoreFocus,
-				changeFluidFocus,
-			}) => {
-				const newCoreFocusId = Math.min(
-					(fluidFocusId ?? 0) + 1,
-					scheduleItems().length - 1,
-				);
-				changeFluidFocus(newCoreFocusId);
+	const isCurrentPanel = () => currentPanel() === name;
+	const { name, coreFocusId, fluidFocusId, changeFocus, changeFluidFocus } =
+		subscribeEvent({
+			name: SCHEDULE_PANEL_FOCUS_NAME,
+			defaultCoreFocus: 0,
+			defaultFluidFocus: 0,
+			handlers: {
+				ArrowDown: ({ fluidFocusId, changeFluidFocus }) => {
+					if (!isCurrentPanel()) return;
+					const newFocusId = Math.min(
+						(fluidFocusId ?? 0) + 1,
+						scheduleItems().length - 1,
+					);
+					changeFluidFocus(newFocusId);
+				},
+				ArrowUp: ({ fluidFocusId, changeFluidFocus }) => {
+					if (!isCurrentPanel()) return;
+					const newFocusId = Math.max((fluidFocusId ?? 0) - 1, 0);
+					changeFluidFocus(newFocusId);
+				},
+				Enter: ({ fluidFocusId, changeFocus }) => {
+					if (!isCurrentPanel()) return;
+					changeFocus(fluidFocusId);
+					pushToLive(fluidFocusId, true);
+				},
 			},
-			ArrowUp: ({
-				coreFocusId,
-				fluidFocusId,
-				changeFocus,
-				changeCoreFocus,
-				changeFluidFocus,
-			}) => {
-				const newCoreFocusId = Math.max((fluidFocusId ?? 0) - 1, 0);
-				changeFluidFocus(newCoreFocusId);
+			clickHandlers: {
+				onClick: ({ changeFluidFocus, focusId, event }) => {
+					if (typeof focusId === "number") {
+						changeFluidFocus(focusId);
+						pushToLive(focusId, false);
+					}
+				},
+				onDblClick: ({ changeFocus, focusId }) => {
+					if (typeof focusId === "number") {
+						changeFocus(focusId);
+						pushToLive(focusId, true);
+					}
+				},
 			},
-			Enter: ({
-				coreFocusId,
-				fluidFocusId,
-				changeFocus,
-				changeCoreFocus,
-				changeFluidFocus,
-			}) => {
-				changeFocus(fluidFocusId);
-			},
-		},
-		clickHandlers: {
-			onClick: ({ changeFluidFocus, focusId, event }) => {
-				if (typeof focusId === "number") {
-					changeFluidFocus(focusId);
-					pushToLive(focusId, false);
-				}
-			},
-			onDblClick: ({ changeFocus, focusId }) => {
-				if (typeof focusId === "number") {
-					changeFocus(focusId);
-					pushToLive(focusId, true);
-				}
-			},
-		},
-	});
-
-	// createEffect(() => {
-	//     if (scheduleItems()) {
-	//         changeFocus(appStore.scheduleItems?.index)
-	//     }
-	// })
+		});
 
 	let virtualizerParentRef!: HTMLDivElement;
 	const rowVirtualizer = createMemo(() =>
@@ -134,9 +116,17 @@ export default function SchedulePanel() {
 		}),
 	);
 
+	// Scroll to focused item and update preview when navigating
 	createEffect(() => {
-		console.log("Fluid Focus is CHanged: ", fluidFocusId());
-		rowVirtualizer().scrollToIndex(fluidFocusId() ?? 0);
+		const focusId = fluidFocusId();
+		console.log("Schedule Panel Fluid Focus Changed: ", focusId);
+		if (typeof focusId === "number") {
+			rowVirtualizer().scrollToIndex(focusId);
+			// Update preview when navigating with keyboard
+			if (isCurrentPanel() && scheduleItems().length > 0) {
+				pushToLive(focusId, false);
+			}
+		}
 	});
 
 	return (

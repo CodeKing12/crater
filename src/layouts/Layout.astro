@@ -29,6 +29,19 @@ import AppContextProvider from "./AppContext";
 <script>
 	import TextFill from "~/utils/textfill";
 
+	// Suppress ResizeObserver loop error - this is a known benign error
+	// that occurs with virtual scrolling and dynamic resize operations
+	const resizeObserverError = (e: ErrorEvent) => {
+		if (
+			e.message ===
+				"ResizeObserver loop completed with undelivered notifications." ||
+			e.message === "ResizeObserver loop limit exceeded"
+		) {
+			e.stopImmediatePropagation();
+		}
+	};
+	window.addEventListener("error", resizeObserverError);
+
 	const autoSizeElements = () => {
 		var resizeElems = document.querySelectorAll(
 			"*[data-textfill-resize-options]"

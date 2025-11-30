@@ -318,6 +318,43 @@ export default function ScriptureSelection() {
 		}
 	});
 
+	// Re-sync selected verse when translation changes
+	// This ensures the same book/chapter/verse stays selected even though the index might change
+	let previousTranslation = scriptureControls.translation;
+	createEffect(() => {
+		const currentTranslation = scriptureControls.translation;
+		const scriptures = filteredScriptures();
+
+		// Only re-sync if translation actually changed and we have scriptures loaded
+		if (
+			currentTranslation !== previousTranslation &&
+			scriptures.length > 0 &&
+			stageMarkData.book
+		) {
+			const scriptureIndex = scriptures.findIndex(
+				(scripture) =>
+					scripture.book_name === stageMarkData.book?.toLowerCase() &&
+					scripture.chapter === stageMarkData.chapter &&
+					scripture.verse === stageMarkData.verse,
+			);
+			console.log(
+				"Translation changed, re-syncing focus:",
+				previousTranslation,
+				"->",
+				currentTranslation,
+				stageMarkData.book,
+				stageMarkData.chapter,
+				stageMarkData.verse,
+				"New index:",
+				scriptureIndex,
+			);
+			if (scriptureIndex > -1) {
+				changeFluidFocus(scriptureIndex);
+			}
+			previousTranslation = currentTranslation;
+		}
+	});
+
 	// close contextMenu when we scroll
 	createEffect(() => {
 		const fluidFocus = fluidFocusId();

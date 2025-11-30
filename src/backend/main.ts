@@ -242,7 +242,8 @@ const spawnAppWindow = async () => {
 		loadingWindow.hide();
 		loadingWindow.close();
 		// });
-		if (electronIsDev) appWindow.webContents.openDevTools({ mode: "right" });
+		// Always open DevTools for debugging (temporarily)
+		appWindow.webContents.openDevTools({ mode: "right" });
 
 		// Add keyboard shortcut to open devtools in production (Ctrl+Shift+I)
 		appWindow.webContents.on("before-input-event", (event, input) => {
@@ -345,9 +346,22 @@ app.on("ready", async () => {
 	spawnAppWindow();
 
 	protocol.handle("image", (request) => {
-		const filePath = pathToFileURL(new URL(request.url).pathname).toString();
-		logger.debug("Serving image", { filePath });
-		return net.fetch(filePath);
+		log.info("Image protocol handler called", { url: request.url });
+		try {
+			const url = new URL(request.url);
+			log.info("Parsed URL", { pathname: url.pathname });
+			const fileUrl = pathToFileURL(decodeURI(url.pathname));
+			let filePath = decodeURI(fileUrl.pathname).slice(1);
+			log.info("Serving image", { filePath, fileUrl: fileUrl.toString() });
+			if (!fs.existsSync(filePath)) {
+				log.error(`Image not found: ${filePath}`);
+				return new Response("Image not found", { status: 404 });
+			}
+			return net.fetch(fileUrl.toString());
+		} catch (error) {
+			log.error("Error handling image protocol:", error);
+			return new Response("Internal Server Error", { status: 500 });
+		}
 	});
 	// handleCustomProtocols();
 
