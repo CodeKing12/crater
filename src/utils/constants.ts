@@ -163,7 +163,7 @@ export const defaultAppStore: AppData = {
 
 export const DEFAULT_PROJECTION_DISPLAY_ID = 0;
 export const defaultAppSettings: AppSettings = {
-	theme: "light",
+	theme: "dark",
 	language: "en",
 	projectionBounds: {
 		height: 0,
@@ -172,6 +172,16 @@ export const defaultAppSettings: AppSettings = {
 		y: 0,
 	},
 	projectionDisplayId: DEFAULT_PROJECTION_DISPLAY_ID,
+	// Appearance settings
+	fontSize: "medium",
+	// Scripture settings
+	defaultTranslation: "NKJV",
+	showVerseNumbers: true,
+	showScriptureReference: true,
+	// Song settings
+	showSongAuthor: true,
+	showCcliNumber: false,
+	autoAdvanceSlides: false,
 };
 
 export const storageKey = "crater-store";

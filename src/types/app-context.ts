@@ -115,6 +115,16 @@ export interface AppSettings {
 	language: string;
 	projectionBounds: DisplayBounds;
 	projectionDisplayId: number;
+	// Appearance settings
+	fontSize: "small" | "medium" | "large" | "xlarge";
+	// Scripture settings
+	defaultTranslation: string;
+	showVerseNumbers: boolean;
+	showScriptureReference: boolean;
+	// Song settings
+	showSongAuthor: boolean;
+	showCcliNumber: boolean;
+	autoAdvanceSlides: boolean;
 }
 
 export interface DisplayContextObj {

@@ -102,5 +102,41 @@ export const updateProjectionDisplayId: AppSettingsUpdateFn<number> = (
 };
 
 export const toggleTheme: AppSettingsUpdateFn = (setStore) => {
-	setStore("theme", (former) => (former === "light" ? "dark" : "left"));
+	setStore("theme", (former) => (former === "light" ? "dark" : "light"));
+};
+
+// Appearance settings
+export const updateFontSize: AppSettingsUpdateFn<
+	"small" | "medium" | "large" | "xlarge"
+> = (setStore, newVal) => {
+	setStore("fontSize", newVal);
+};
+
+// Scripture settings
+export const updateDefaultTranslation: AppSettingsUpdateFn<string> = (
+	setStore,
+	newVal,
+) => {
+	setStore("defaultTranslation", newVal);
+};
+
+export const toggleShowVerseNumbers: AppSettingsUpdateFn = (setStore) => {
+	setStore("showVerseNumbers", (former) => !former);
+};
+
+export const toggleShowScriptureReference: AppSettingsUpdateFn = (setStore) => {
+	setStore("showScriptureReference", (former) => !former);
+};
+
+// Song settings
+export const toggleShowSongAuthor: AppSettingsUpdateFn = (setStore) => {
+	setStore("showSongAuthor", (former) => !former);
+};
+
+export const toggleShowCcliNumber: AppSettingsUpdateFn = (setStore) => {
+	setStore("showCcliNumber", (former) => !former);
+};
+
+export const toggleAutoAdvanceSlides: AppSettingsUpdateFn = (setStore) => {
+	setStore("autoAdvanceSlides", (former) => !former);
 };
