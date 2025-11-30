@@ -47,15 +47,6 @@ import { Kbd } from "../../ui/kbd";
 import { VsListTree, VsSearchFuzzy } from "solid-icons/vs";
 import { updateSongEdit } from "~/utils/store-helpers";
 import { Input } from "~/components/ui/input";
-import Fuse from "fuse.js";
-
-// Initialize Fuse.js for fuzzy song search
-const fuzzy = new Fuse<SongData>([], {
-	keys: ["title", "author"],
-	threshold: 0.4, // 0 = exact match, 1 = match anything
-	ignoreLocation: true,
-	includeScore: true,
-});
 
 type SongPanelGroupValues = "all" | "collections" | "favorites";
 type SongListData = {
@@ -77,13 +68,15 @@ export default function SongSelection() {
 	const allSongs = createAsyncMemo(async () => {
 		const updated = appStore.songsUpdateCounter;
 		const songs = await window.electronAPI.fetchAllSongs();
-		// Update Fuse.js collection when songs are loaded
-		fuzzy.setCollection(songs);
 		return songs;
 	}, []);
-	// const queriedSongs = createAsyncMemo(async () => {
-	// 	return await window.electronAPI.filterSongsByPhrase(songControls.query);
-	// }, []);
+
+	// Search songs using backend FTS5 trigram search
+	const searchedSongs = createAsyncMemo(async () => {
+		if (!songControls.query.trim()) return null;
+		return await window.electronAPI.searchSongs(songControls.query);
+	}, null);
+
 	const [songControls, setSongControls] = createStore<SongControlsData>({
 		group: "all",
 		collection: null,
@@ -100,29 +93,33 @@ export default function SongSelection() {
 		),
 	);
 
-	// Apply fuzzy search filter to songs
-	const applyQueryFilter = (songs: SongData[]): SongData[] => {
-		if (!songControls.query.trim()) {
-			return songs;
-		}
-		// Use Fuse.js for fuzzy matching
-		const results = fuzzy.search(songControls.query);
-		// Filter to only include songs from the input collection
-		const songIds = new Set(songs.map((s) => s.id));
-		return results
-			.filter((result) => songIds.has(result.item.id))
-			.map((result) => result.item);
-	};
-
 	const filteredSongs = createMemo<SongData[]>(() => {
 		const songCollection = currentCollection();
-		if (currentGroup().subGroups && songCollection) {
-			return applyQueryFilter(
-				allSongs().filter((song) => songCollection.items.includes(song.id)),
-			);
-		} else {
-			return applyQueryFilter(allSongs());
+		const query = songControls.query.trim();
+
+		// If there's a search query, use FTS5 results
+		if (query) {
+			const ftsResults = searchedSongs();
+			if (ftsResults && ftsResults.length > 0) {
+				// If in a collection, filter FTS results to only include collection songs
+				if (currentGroup().subGroups && songCollection) {
+					const collectionIds = new Set(songCollection.items);
+					return ftsResults.filter((song: SongData) =>
+						collectionIds.has(song.id),
+					);
+				}
+				return ftsResults;
+			}
+			return []; // No results found
 		}
+
+		// No query - return all songs (or filtered by collection)
+		if (currentGroup().subGroups && songCollection) {
+			return allSongs().filter((song) =>
+				songCollection.items.includes(song.id),
+			);
+		}
+		return allSongs();
 	});
 	const pushToLive = (itemId?: number | null, isLive?: boolean) => {
 		const focusId = itemId;

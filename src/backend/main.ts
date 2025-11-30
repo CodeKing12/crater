@@ -40,9 +40,17 @@ import {
 	fetchSongLyrics,
 	updateSong,
 	filterSongsByPhrase,
+	searchSongs,
 	deleteSongById,
 	createSong,
+	rebuildAllSongsFtsIndex,
+	initializeSongsFtsIndexIfEmpty,
 } from "./database/song-operations.js";
+import {
+	searchScriptures,
+	rebuildScriptureFtsIndex,
+	initializeScriptureFtsIndexIfEmpty,
+} from "./database/bible-operations.js";
 import {
 	appBackground,
 	DB_IMPORT_TEMP_DIR,
@@ -235,13 +243,13 @@ const spawnAppWindow = async () => {
 		appWindow.loadURL(controlsUrl);
 
 		appWindow.setMenu(null);
-		// ipcMain.on("controls-window-loaded", () => {
-		logger.info("Controls window DOM ready");
-		appWindow?.maximize();
-		appWindow?.show();
-		loadingWindow.hide();
-		loadingWindow.close();
-		// });
+		ipcMain.on("controls-window-loaded", () => {
+			logger.info("Controls window DOM ready");
+			appWindow?.maximize();
+			appWindow?.show();
+			loadingWindow.hide();
+			loadingWindow.close();
+		});
 		// Always open DevTools for debugging (temporarily)
 		appWindow.webContents.openDevTools({ mode: "right" });
 
@@ -344,6 +352,14 @@ app.on("ready", async () => {
 	appReady = true;
 	new AppUpdater();
 	spawnAppWindow();
+
+	// Initialize FTS indexes if they are empty
+	try {
+		initializeSongsFtsIndexIfEmpty();
+		initializeScriptureFtsIndexIfEmpty();
+	} catch (error) {
+		log.error("Error initializing FTS indexes:", error);
+	}
 
 	protocol.handle("image", (request) => {
 		log.info("Image protocol handler called", { url: request.url });
@@ -497,7 +513,13 @@ ipcMain.handle("fetch-lyrics", (_, songId) => fetchSongLyrics(songId));
 ipcMain.handle("create-song", (_, newSong) => createSong(newSong));
 ipcMain.handle("update-song", (_, newInfo) => updateSong(newInfo));
 ipcMain.handle("filter-songs", (_, phrase) => filterSongsByPhrase(phrase));
+ipcMain.handle("search-songs", (_, query) => searchSongs(query));
 ipcMain.handle("delete-song", (_, songId) => deleteSongById(songId));
+ipcMain.handle("rebuild-songs-fts", () => rebuildAllSongsFtsIndex());
+ipcMain.handle("search-scriptures", (_, query, version) =>
+	searchScriptures(query, version),
+);
+ipcMain.handle("rebuild-scriptures-fts", () => rebuildScriptureFtsIndex());
 ipcMain.handle("get-all-displays", () => {
 	if (appReady) {
 		return screen.getAllDisplays();
@@ -704,7 +726,16 @@ ipcMain.handle("import-easyworship-songs", async () => {
 				destination;
 		}
 
-		return await processSongs(songsPaths);
+		const importResult = await processSongs(songsPaths);
+
+		// Rebuild FTS index after importing songs
+		if (importResult && (importResult as { success: boolean }).success) {
+			logger.info("Rebuilding FTS index after song import...");
+			rebuildAllSongsFtsIndex();
+			logger.info("FTS index rebuilt successfully");
+		}
+
+		return importResult;
 	}
 });
 

@@ -1,14 +1,11 @@
 import Database from "better-sqlite3";
-import { DB_EXTENSIONS_PATH, SONGS_DB_PATH } from "../constants.js";
-import path from "node:path";
+import { SONGS_DB_PATH } from "../constants.js";
 
 const db = new Database(SONGS_DB_PATH);
-db.loadExtension(path.join(DB_EXTENSIONS_PATH, "spellfix.dll"));
+// Removed spellfix extension - using FTS5 trigram instead
 export const songsTableName = "songs";
 export const lyricsTableName = "song_lyrics";
-export const ftsTableName = "song_ft";
-export const spellfixTableName = "songs_search";
-export const ftsAuxTableName = "songs_ft_aux";
+export const ftsTableName = "song_fts5"; // New FTS5 table name
 
 // Create Tables
 db.prepare(
@@ -35,90 +32,122 @@ CREATE TABLE IF NOT EXISTS ${lyricsTableName} (
 )`,
 ).run();
 
-// INSERT INTO songs_search(word) SELECT word FROM big_vocabulary;
-// INSERT INTO songs_search(word) SELECT term FROM search_aux WHERE col='*';
-// ftsTableName option: content="${songsTableName}",
+// Create FTS5 virtual table with trigram tokenizer for fuzzy search
+// Trigram tokenizer breaks text into 3-character sequences, enabling typo-tolerant search
 db.exec(`
-  CREATE VIRTUAL TABLE IF NOT EXISTS ${spellfixTableName} USING spellfix1;
-  CREATE VIRTUAL TABLE IF NOT EXISTS ${ftsTableName} USING fts4(title, lyrics);
-  CREATE VIRTUAL TABLE IF NOT EXISTS ${ftsAuxTableName} USING fts4aux(${ftsTableName});
-  
-    CREATE TRIGGER IF NOT EXISTS ${songsTableName}_bu BEFORE UPDATE ON ${songsTableName} BEGIN
-        DELETE FROM ${ftsTableName} WHERE docid=old.rowid;
-    END;
-    CREATE TRIGGER IF NOT EXISTS ${songsTableName}_au AFTER UPDATE ON ${songsTableName} BEGIN
-        INSERT INTO ${ftsTableName}(docid, title, lyrics) VALUES(
-        new.rowid, (SELECT title from ${songsTableName} where id = new.rowid), 
-        (
-          SELECT GROUP_CONCAT(
-            REPLACE(
-              TRIM(
-                TRIM(lyrics, '["'), 
-                ']"'), '","', ', ')) as lyrics
-                      FROM song_lyrics
-                      WHERE song_id = new.rowid
-                      ORDER BY "order" ASC
-          )
-        );
-    END;
-    CREATE TRIGGER IF NOT EXISTS ${songsTableName}_bd BEFORE DELETE ON ${songsTableName} BEGIN
-        DELETE FROM ${ftsTableName} WHERE docid=old.rowid;
-    END;
+  CREATE VIRTUAL TABLE IF NOT EXISTS ${ftsTableName} USING fts5(
+    title, 
+    author,
+    lyrics,
+    content='',
+    tokenize='trigram'
+  );
+`);
 
+// Helper function to extract plain text from JSON lyrics
+const extractLyricsText = (songId: number): string => {
+	const lyrics = db
+		.prepare(
+			`
+    SELECT lyrics FROM ${lyricsTableName} 
+    WHERE song_id = ? 
+    ORDER BY "order" ASC
+  `,
+		)
+		.all(songId) as { lyrics: string }[];
 
-    CREATE TRIGGER IF NOT EXISTS ${lyricsTableName}_bd BEFORE DELETE ON ${lyricsTableName} BEGIN
-        DELETE FROM ${ftsTableName} WHERE docid=old.song_id;
-    END;
-    CREATE TRIGGER IF NOT EXISTS ${lyricsTableName}_bu BEFORE UPDATE ON ${lyricsTableName} BEGIN
-        DELETE FROM ${ftsTableName} WHERE docid=old.song_id;
-    END;
-    CREATE TRIGGER IF NOT EXISTS ${lyricsTableName}_au AFTER UPDATE ON ${lyricsTableName} BEGIN
-        INSERT INTO ${ftsTableName}(docid, title, lyrics) VALUES(
-        new.song_id, (SELECT title from ${songsTableName} where id = new.song_id), 
-        (
-          SELECT GROUP_CONCAT(
-            REPLACE(
-              TRIM(
-                TRIM(lyrics, '["'), 
-                ']"'), '","', ', ')) as lyrics
-                      FROM song_lyrics
-                      WHERE song_id = new.song_id
-                      ORDER BY "order" ASC
-          )
-        );
-    END;
+	return lyrics
+		.map((l) => {
+			try {
+				const parsed = JSON.parse(l.lyrics);
+				return Array.isArray(parsed) ? parsed.join(" ") : String(parsed);
+			} catch {
+				return l.lyrics;
+			}
+		})
+		.join(" ");
+};
 
-    CREATE TRIGGER IF NOT EXISTS ${lyricsTableName}_bi BEFORE INSERT ON ${lyricsTableName}
-      BEGIN
-          DELETE FROM ${ftsTableName} WHERE docid=new.song_id;
-      END;
-    CREATE TRIGGER IF NOT EXISTS ${lyricsTableName}_ai AFTER INSERT ON ${lyricsTableName} 
-      BEGIN
-          INSERT INTO ${ftsTableName}(docid, title, lyrics) VALUES(
-          new.song_id, (SELECT title from ${songsTableName} where id = new.song_id), 
-          (
-            SELECT GROUP_CONCAT(
-              REPLACE(
-                TRIM(
-                  TRIM(lyrics, '["'), 
-                  ']"'), '","', ', ')) as lyrics
-                        FROM song_lyrics
-                        WHERE song_id = new.song_id
-                        ORDER BY "order" ASC
-            )
-          );
-      END;
-    `);
-// CREATE TRIGGER IF NOT EXISTS ${ftsAuxTableName}_bi BEFORE DELETE ON ${ftsAuxTableName} BEGIN
-//     DELETE FROM ${spellfixTableName} WHERE word=new.term;
-// END;
-// CREATE TRIGGER IF NOT EXISTS ${ftsAuxTableName}_bi BEFORE INSERT ON ${ftsAuxTableName} BEGIN
-//     DELETE FROM ${spellfixTableName} WHERE word=new.term;
-// END;
-// CREATE TRIGGER IF NOT EXISTS ${ftsAuxTableName}_ai AFTER INSERT ON ${ftsAuxTableName} BEGIN
-//     INSERT INTO ${spellfixTableName}(word,rank)
-//         VALUES (new.term, new.documents);
-// END;
+// Function to rebuild the FTS5 index for a song
+export const rebuildSongFtsIndex = (songId: number) => {
+	const song = db
+		.prepare(`SELECT id, title, author FROM ${songsTableName} WHERE id = ?`)
+		.get(songId) as { id: number; title: string; author: string } | undefined;
+	if (!song) return;
+
+	const lyricsText = extractLyricsText(songId);
+
+	// For contentless FTS5 tables, we need to use INSERT OR REPLACE
+	// or delete with special syntax. Using INSERT OR REPLACE is simpler.
+	db.prepare(
+		`INSERT OR REPLACE INTO ${ftsTableName}(rowid, title, author, lyrics) VALUES(?, ?, ?, ?)`,
+	).run(songId, song.title || "", song.author || "", lyricsText);
+};
+
+// Function to delete a song from FTS5 index (for contentless tables)
+export const deleteSongFromFtsIndex = (
+	songId: number,
+	title: string,
+	author: string,
+	lyricsText: string,
+) => {
+	// For contentless FTS5 tables, delete requires providing the original values
+	db.prepare(
+		`INSERT INTO ${ftsTableName}(${ftsTableName}, rowid, title, author, lyrics) VALUES('delete', ?, ?, ?, ?)`,
+	).run(songId, title || "", author || "", lyricsText);
+};
+
+// Function to rebuild entire FTS5 index
+export const rebuildAllSongsFtsIndex = () => {
+	// For contentless FTS5, we need to drop and recreate the table
+	db.exec(`DROP TABLE IF EXISTS ${ftsTableName}`);
+	db.exec(`
+		CREATE VIRTUAL TABLE ${ftsTableName} USING fts5(
+			title, 
+			author,
+			lyrics,
+			content='',
+			tokenize='trigram'
+		);
+	`);
+
+	// Get all songs
+	const songs = db.prepare(`SELECT id FROM ${songsTableName}`).all() as {
+		id: number;
+	}[];
+
+	// Rebuild index for each song
+	for (const song of songs) {
+		rebuildSongFtsIndex(song.id);
+	}
+
+	console.log(`Rebuilt FTS5 index for ${songs.length} songs`);
+};
+
+// Check if FTS index is populated and needs rebuilding
+export const isSongsFtsIndexEmpty = (): boolean => {
+	const count = db
+		.prepare(`SELECT COUNT(*) as count FROM ${ftsTableName}`)
+		.get() as { count: number };
+	return count.count === 0;
+};
+
+// Initialize FTS index if empty (call on app startup)
+export const initializeSongsFtsIndexIfEmpty = () => {
+	const songsCount = (
+		db.prepare(`SELECT COUNT(*) as count FROM ${songsTableName}`).get() as {
+			count: number;
+		}
+	).count;
+	if (songsCount > 0 && isSongsFtsIndexEmpty()) {
+		console.log("Songs FTS index is empty, rebuilding...");
+		rebuildAllSongsFtsIndex();
+	}
+};
+
+// Create triggers to keep FTS5 index in sync
+// Note: We use AFTER triggers and call the rebuild function via application logic
+// since SQLite triggers can't call custom functions easily
 
 db.prepare(
 	`

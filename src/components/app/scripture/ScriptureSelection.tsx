@@ -45,7 +45,6 @@ import type { AvailableTranslation, ScriptureVerse } from "~/types";
 import bibleData from "~/utils/parser/osis.json";
 import bookInfo from "~/utils/parser/books.json";
 import { Input } from "~/components/ui/input";
-import Fuse from "fuse.js";
 import { appLogger } from "~/utils/logger";
 
 type ScripturePanelGroupValues = "all" | "collections" | "favorites";
@@ -75,10 +74,6 @@ interface StageMarkData {
 	selectionEnd: number;
 }
 
-const fuzzy = new Fuse([] as ScriptureVerse[], {
-	keys: ["text"],
-});
-
 export default function ScriptureSelection() {
 	const { appStore, setAppStore } = useAppContext();
 	const [scriptureControls, setScriptureControls] =
@@ -97,9 +92,18 @@ export default function ScriptureSelection() {
 		const results = await window.electronAPI.fetchAllScripture(
 			scriptureControls.translation,
 		);
-		fuzzy.setCollection(results);
 		return results;
 	}, []);
+
+	// Search scriptures using backend FTS5 trigram search
+	const searchedScriptures = createAsyncMemo(async () => {
+		if (!scriptureControls.query.trim()) return null;
+		return await window.electronAPI.searchScriptures(
+			scriptureControls.query,
+			scriptureControls.translation,
+		);
+	}, null);
+
 	const allTranslations = createAsyncMemo(async () => {
 		return await window.electronAPI.fetchTranslations();
 	}, []);
@@ -129,40 +133,30 @@ export default function ScriptureSelection() {
 		return updatedGroups;
 	});
 	const currentGroup = createMemo(() => allGroups()[scriptureControls.group]);
-	// const currentCollection = createMemo(() =>
-	// 	currentGroup().subGroups?.find(
-	// 		(group) => group.id === scriptureControls.collection,
-	// 	),
-	// );
 
 	let searchInputRef!: HTMLInputElement;
-	// const applyQueryFilter = (scriptures: ScriptureVerse[]) => {
-	// return fuzzy.search(scriptureControls.query).map((m) => m.item);
-	// scriptures.filter((scripture) =>
-	// 	scripture.text.includes(scriptureControls.query),
-	// );
-	// };
+
 	const filteredScriptures = createMemo<ScriptureVerse[]>(() => {
-		// const scriptureCollection = currentCollection();
 		console.log(
 			"All Groups: ",
 			allGroups(),
 			currentGroup(),
 			scriptureControls.translation,
 		);
-		// if (currentGroup().subGroups && scriptureControls.translation) {
-		// 	return applyQueryFilter(
-		// 		allScriptures().filter((scripture) =>
-		// 			scriptureCollection.items.includes(scripture.id),
-		// 		),
-		// 	);
-		// } else {
-		if (scriptureControls.query) {
-			return fuzzy.search(scriptureControls.query).map((m) => m.item);
-		} else {
-			return allScriptures();
+
+		const query = scriptureControls.query.trim();
+
+		// If there's a search query, use FTS5 results
+		if (query) {
+			const ftsResults = searchedScriptures();
+			if (ftsResults && ftsResults.length > 0) {
+				return ftsResults;
+			}
+			return []; // No results found
 		}
-		// }
+
+		// No query - return all scriptures
+		return allScriptures();
 	});
 
 	const pushToLive = (itemId?: number | null, isLive?: boolean) => {

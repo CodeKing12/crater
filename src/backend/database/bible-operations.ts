@@ -1,4 +1,8 @@
-import bibleDB from "./bible-db.js";
+import bibleDB, {
+	searchScriptures,
+	rebuildScriptureFtsIndex,
+	initializeScriptureFtsIndexIfEmpty,
+} from "./bible-db.js";
 
 // Define the database interface and utility types
 interface ScriptureTranslation {
@@ -152,4 +156,7 @@ export {
 	fetchChapter,
 	fetchScripture,
 	fetchAllScripture,
+	searchScriptures,
+	rebuildScriptureFtsIndex,
+	initializeScriptureFtsIndexIfEmpty,
 };

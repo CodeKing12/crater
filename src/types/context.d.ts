@@ -155,8 +155,15 @@ export interface IElectronAPI {
 		newLyrics: SongLyric[];
 	}) => Promise<{ success: boolean; message: string }>;
 	filterSongsByPhrase: (phrase: string) => Promise<SongData[]>;
+	searchSongs: (query: string) => Promise<SongData[]>;
 	deleteSong: (songId: number) => Promise<BridgeResponse>;
+	rebuildSongsFtsIndex: () => Promise<void>;
 	fetchAllScripture: (version: string) => Promise<ScriptureVerse[]>;
+	searchScriptures: (
+		query: string,
+		version?: string,
+	) => Promise<ScriptureVerse[]>;
+	rebuildScripturesFtsIndex: () => Promise<void>;
 	openProjectionWindow: ({ x: number, y: number }) => void;
 	closeProjectionWindow: () => void;
 	getConnectedDisplays: () => Promise<Display[]>;

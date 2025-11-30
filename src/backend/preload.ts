@@ -73,7 +73,14 @@ contextBridge.exposeInMainWorld("electronAPI", {
 	updateSong: (newInfo: unknown) => ipcRenderer.invoke("update-song", newInfo),
 	filterSongsByPhrase: (phrase: unknown) =>
 		ipcRenderer.invoke("filter-songs", phrase),
+	searchSongs: (query: string) => ipcRenderer.invoke("search-songs", query),
 	deleteSong: (songId: number) => ipcRenderer.invoke("delete-song", songId),
+	rebuildSongsFtsIndex: () => ipcRenderer.invoke("rebuild-songs-fts"),
+
+	// Scripture Search
+	searchScriptures: (query: string, version?: string) =>
+		ipcRenderer.invoke("search-scriptures", query, version),
+	rebuildScripturesFtsIndex: () => ipcRenderer.invoke("rebuild-scriptures-fts"),
 
 	// Projection requests
 	sendVerseUpdate: (verseData: unknown) =>

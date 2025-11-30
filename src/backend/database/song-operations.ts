@@ -1,4 +1,10 @@
-import songsDB, { ftsTableName, spellfixTableName } from "./songs-db.js";
+import songsDB, {
+	ftsTableName,
+	rebuildSongFtsIndex,
+	rebuildAllSongsFtsIndex,
+	initializeSongsFtsIndexIfEmpty,
+	deleteSongFromFtsIndex,
+} from "./songs-db.js";
 
 // Define types for songs and lyrics
 type Song = {
@@ -123,33 +129,94 @@ const updateSong = ({
 	});
 
 	transaction();
+
+	// Rebuild FTS index for the updated song
+	rebuildSongFtsIndex(songId);
+
 	return { success: true, message: "Song updated successfully." };
 };
 
-// Filter songs by a phrase in their lyrics
-const filterSongsByPhrase = (phrase: string): Song[] => {
-	console.log("SEARCHING BY PHRASE: ", phrase);
-	const response = songsDB
-		.prepare(
-			// 		`
-			// SELECT DISTINCT s.id, s.title, s.author, s.copyright
-			// FROM songs s
-			// JOIN song_lyrics sl ON s.id = sl.song_id
-			// WHERE sl.lyrics LIKE ?
-			// ORDER BY s.title ASC
-			// `,
-			`
-	SELECT * FROM ${ftsTableName} WHERE lyrics MATCH ?;`,
-		)
-		.all(phrase) as Song[];
+// Search songs by phrase using FTS5 trigram (typo-tolerant)
+const searchSongs = (query: string): Song[] => {
+	const trimmedQuery = query.trim();
+	if (!trimmedQuery) return [];
 
-	console.log("FILTER RESPONSE: ", response);
-	return response;
+	console.log("SEARCHING SONGS: ", trimmedQuery);
+
+	// Trigram requires at least 3 characters for effective matching
+	if (trimmedQuery.length < 3) {
+		console.log("Query too short for trigram search (need 3+ chars)");
+		return [];
+	}
+
+	// For trigram tokenizer, escape quotes and wrap in quotes for substring matching
+	const escapedQuery = trimmedQuery.replace(/"/g, '""');
+
+	try {
+		// FTS5 trigram search - handles typos naturally
+		// We search across title, author, and lyrics
+		const response = songsDB
+			.prepare(
+				`
+				SELECT s.id, s.title, s.author, s.copyright, s.created_at, s.updated_at
+				FROM ${ftsTableName} fts
+				JOIN songs s ON fts.rowid = s.id
+				WHERE ${ftsTableName} MATCH '"${escapedQuery}"'
+				ORDER BY rank
+				LIMIT 50
+				`,
+			)
+			.all() as Song[];
+
+		console.log("SEARCH RESPONSE: ", response.length, "results");
+		return response;
+	} catch (error) {
+		console.error("Song search error:", error);
+		return [];
+	}
+};
+
+// Legacy function name for compatibility
+const filterSongsByPhrase = (phrase: string): Song[] => {
+	return searchSongs(phrase);
 };
 
 const deleteSongById = (
 	songId: number,
 ): { success: boolean; message: string } => {
+	// Get song data first for FTS delete (contentless FTS5 requires original values)
+	const song = songsDB
+		.prepare(`SELECT id, title, author FROM songs WHERE id = ?`)
+		.get(songId) as { id: number; title: string; author: string } | undefined;
+
+	if (!song) {
+		return { success: false, message: "Song not found." };
+	}
+
+	// Get lyrics text for FTS delete
+	const lyrics = songsDB
+		.prepare(
+			`SELECT lyrics FROM song_lyrics WHERE song_id = ? ORDER BY "order" ASC`,
+		)
+		.all(songId) as { lyrics: string }[];
+	const lyricsText = lyrics
+		.map((l) => {
+			try {
+				const parsed = JSON.parse(l.lyrics);
+				return Array.isArray(parsed) ? parsed.join(" ") : String(parsed);
+			} catch {
+				return l.lyrics;
+			}
+		})
+		.join(" ");
+
+	// Delete from FTS index first (using special contentless delete syntax)
+	try {
+		deleteSongFromFtsIndex(songId, song.title, song.author, lyricsText);
+	} catch (e) {
+		console.error("Error deleting from FTS index:", e);
+	}
+
 	const deleteSong = songsDB.prepare(
 		`
     DELETE FROM songs
@@ -201,6 +268,9 @@ const createSong = ({
 			);
 		});
 
+		// Build FTS index for the new song
+		rebuildSongFtsIndex(songId);
+
 		return { success: true, message: "Song created successfully.", songId };
 	} else {
 		return { success: false, message: "Failed to create song." };
@@ -211,7 +281,10 @@ export {
 	fetchAllSongs,
 	fetchSongLyrics,
 	updateSong,
+	searchSongs,
 	filterSongsByPhrase,
 	deleteSongById,
 	createSong,
+	rebuildAllSongsFtsIndex,
+	initializeSongsFtsIndexIfEmpty,
 };
