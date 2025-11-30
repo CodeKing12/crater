@@ -113,6 +113,172 @@ export const semanticColors = defineSemanticTokens.colors({
 		},
 	},
 
+	// Brand color semantic tokens (Radix Green accent #227617)
+	brand: {
+		contrast: {
+			value: { base: "#fff", _dark: "#fff" },
+		},
+		fg: {
+			value: { base: "{colors.brand.950}", _dark: "{colors.brandDark.950}" },
+		},
+		subtle: {
+			value: { base: "{colors.brand.100}", _dark: "{colors.brandDark.100}" },
+		},
+		muted: {
+			value: { base: "{colors.brand.200}", _dark: "{colors.brandDark.200}" },
+		},
+		emphasized: {
+			value: { base: "{colors.brand.300}", _dark: "{colors.brandDark.300}" },
+		},
+		solid: {
+			value: { base: "{colors.brand.800}", _dark: "{colors.brandDark.800}" },
+		},
+		focusRing: {
+			value: { base: "{colors.brand.700}", _dark: "{colors.brandDark.700}" },
+		},
+		// Add numeric scales with dark mode support
+		50: {
+			value: { base: "{colors.brand.50}", _dark: "{colors.brandDark.50}" },
+		},
+		100: {
+			value: { base: "{colors.brand.100}", _dark: "{colors.brandDark.100}" },
+		},
+		200: {
+			value: { base: "{colors.brand.200}", _dark: "{colors.brandDark.200}" },
+		},
+		300: {
+			value: { base: "{colors.brand.300}", _dark: "{colors.brandDark.300}" },
+		},
+		400: {
+			value: { base: "{colors.brand.400}", _dark: "{colors.brandDark.400}" },
+		},
+		500: {
+			value: { base: "{colors.brand.500}", _dark: "{colors.brandDark.500}" },
+		},
+		600: {
+			value: { base: "{colors.brand.600}", _dark: "{colors.brandDark.600}" },
+		},
+		700: {
+			value: { base: "{colors.brand.700}", _dark: "{colors.brandDark.700}" },
+		},
+		800: {
+			value: { base: "{colors.brand.800}", _dark: "{colors.brandDark.800}" },
+		},
+		900: {
+			value: { base: "{colors.brand.900}", _dark: "{colors.brandDark.900}" },
+		},
+		950: {
+			value: { base: "{colors.brand.950}", _dark: "{colors.brandDark.950}" },
+		},
+	},
+
+	// Neutral color semantic tokens (Radix warm gray)
+	neutral: {
+		contrast: {
+			value: { base: "#FFFFFF", _dark: "#FFFFFF" },
+		},
+		fg: {
+			value: {
+				base: "{colors.neutral.950}",
+				_dark: "{colors.neutralDark.950}",
+			},
+		},
+		subtle: {
+			value: {
+				base: "{colors.neutral.100}",
+				_dark: "{colors.neutralDark.100}",
+			},
+		},
+		muted: {
+			value: {
+				base: "{colors.neutral.200}",
+				_dark: "{colors.neutralDark.200}",
+			},
+		},
+		emphasized: {
+			value: {
+				base: "{colors.neutral.300}",
+				_dark: "{colors.neutralDark.300}",
+			},
+		},
+		solid: {
+			value: {
+				base: "{colors.neutral.800}",
+				_dark: "{colors.neutralDark.800}",
+			},
+		},
+		focusRing: {
+			value: {
+				base: "{colors.neutral.700}",
+				_dark: "{colors.neutralDark.700}",
+			},
+		},
+		// Add numeric scales with dark mode support
+		50: {
+			value: { base: "{colors.neutral.50}", _dark: "{colors.neutralDark.50}" },
+		},
+		100: {
+			value: {
+				base: "{colors.neutral.100}",
+				_dark: "{colors.neutralDark.100}",
+			},
+		},
+		200: {
+			value: {
+				base: "{colors.neutral.200}",
+				_dark: "{colors.neutralDark.200}",
+			},
+		},
+		300: {
+			value: {
+				base: "{colors.neutral.300}",
+				_dark: "{colors.neutralDark.300}",
+			},
+		},
+		400: {
+			value: {
+				base: "{colors.neutral.400}",
+				_dark: "{colors.neutralDark.400}",
+			},
+		},
+		500: {
+			value: {
+				base: "{colors.neutral.500}",
+				_dark: "{colors.neutralDark.500}",
+			},
+		},
+		600: {
+			value: {
+				base: "{colors.neutral.600}",
+				_dark: "{colors.neutralDark.600}",
+			},
+		},
+		700: {
+			value: {
+				base: "{colors.neutral.700}",
+				_dark: "{colors.neutralDark.700}",
+			},
+		},
+		800: {
+			value: {
+				base: "{colors.neutral.800}",
+				_dark: "{colors.neutralDark.800}",
+			},
+		},
+		900: {
+			value: {
+				base: "{colors.neutral.900}",
+				_dark: "{colors.neutralDark.900}",
+			},
+		},
+		950: {
+			value: {
+				base: "{colors.neutral.950}",
+				_dark: "{colors.neutralDark.950}",
+			},
+		},
+	},
+
 	red: {
 		contrast: {
 			value: { base: "white", _dark: "white" },

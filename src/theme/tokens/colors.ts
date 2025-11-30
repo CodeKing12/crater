@@ -5,6 +5,63 @@ export const colors = defineTokens.colors({
 	current: { value: "currentColor" },
 	black: { value: "#09090B" },
 	white: { value: "#FFFFFF" },
+	// Brand color (Radix Green accent based on #227617)
+	// Using light mode values as base - semantic tokens handle dark mode
+	brand: {
+		50: { value: "#fbfefa" }, // Radix light 1
+		100: { value: "#f5fbf4" }, // Radix light 2
+		200: { value: "#e8f7e6" }, // Radix light 3
+		300: { value: "#daf1d7" }, // Radix light 4
+		400: { value: "#c8e9c4" }, // Radix light 5
+		500: { value: "#b2dfac" }, // Radix light 6
+		600: { value: "#95cf8d" }, // Radix light 7
+		700: { value: "#69ba5e" }, // Radix light 8
+		800: { value: "#227617" }, // Radix light 9 (primary)
+		900: { value: "#0c6700" }, // Radix light 10
+		950: { value: "#2d7f22" }, // Radix light 11
+	},
+	// Brand dark mode values
+	brandDark: {
+		50: { value: "#0c130b" }, // Radix dark 1
+		100: { value: "#121b11" }, // Radix dark 2
+		200: { value: "#182b15" }, // Radix dark 3
+		300: { value: "#173c13" }, // Radix dark 4
+		400: { value: "#1d4b17" }, // Radix dark 5
+		500: { value: "#225a1b" }, // Radix dark 6
+		600: { value: "#286b1f" }, // Radix dark 7
+		700: { value: "#2c7e21" }, // Radix dark 8
+		800: { value: "#227617" }, // Radix dark 9 (primary)
+		900: { value: "#216518" }, // Radix dark 10
+		950: { value: "#7fd174" }, // Radix dark 11
+	},
+	// Neutral color (Radix warm gray) - Light mode values
+	neutral: {
+		50: { value: "#fdfdfc" }, // Radix light 1
+		100: { value: "#f9f9f8" }, // Radix light 2
+		200: { value: "#f0f0ef" }, // Radix light 3
+		300: { value: "#e9e9e7" }, // Radix light 4
+		400: { value: "#e1e1df" }, // Radix light 5
+		500: { value: "#d9d9d7" }, // Radix light 6
+		600: { value: "#cfcfcc" }, // Radix light 7
+		700: { value: "#bbbbb8" }, // Radix light 8
+		800: { value: "#8d8d88" }, // Radix light 9
+		900: { value: "#82827e" }, // Radix light 10
+		950: { value: "#636360" }, // Radix light 11
+	},
+	// Neutral dark mode values
+	neutralDark: {
+		50: { value: "#111110" }, // Radix dark 1
+		100: { value: "#191918" }, // Radix dark 2
+		200: { value: "#222221" }, // Radix dark 3
+		300: { value: "#2a2a28" }, // Radix dark 4
+		400: { value: "#31312f" }, // Radix dark 5
+		500: { value: "#3a3a38" }, // Radix dark 6
+		600: { value: "#484845" }, // Radix dark 7
+		700: { value: "#60605c" }, // Radix dark 8
+		800: { value: "#6e6e69" }, // Radix dark 9
+		900: { value: "#7b7b77" }, // Radix dark 10
+		950: { value: "#b4b4af" }, // Radix dark 11
+	},
 	whiteAlpha: {
 		50: { value: "rgba(255, 255, 255, 0.04)" },
 		100: { value: "rgba(255, 255, 255, 0.06)" },

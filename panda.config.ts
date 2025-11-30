@@ -61,15 +61,16 @@ const semanticColorTokens = [
 ];
 
 // Generate colorPalette.* values for all scales and semantic tokens
-const colorPaletteValues = [
-	...colorScales.map((scale) => `colorPalette.${scale}`),
-	...semanticColorTokens.map((token) => `colorPalette.${token}`),
-];
+// const colorPaletteValues = [
+// 	...colorScales.map((scale) => `colorPalette.${scale}`),
+// 	...semanticColorTokens.map((token) => `colorPalette.${token}`),
+// ];
+const colorPaletteValues: string[] = [];
 
 // Generate actual palette.scale values (e.g., "purple.400", "neutral.500")
 const paletteColorValues = palettes.flatMap((palette) => [
 	...colorScales.map((scale) => `${palette}.${scale}`),
-	...semanticColorTokens.map((token) => `${palette}.${token}`),
+	// ...semanticColorTokens.map((token) => `${palette}.${token}`),
 ]);
 
 export default defineConfig({
