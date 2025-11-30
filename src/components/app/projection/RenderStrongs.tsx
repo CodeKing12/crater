@@ -4,6 +4,7 @@ import type { StrongsSection } from "~/types/context";
 import { css } from "styled-system/css";
 import { createEffect, onMount, Show } from "solid-js";
 import TextFill from "~/utils/textfill";
+import { defaultPalette } from "~/utils/constants";
 
 interface Props {
 	strongsData: StrongsSection | undefined;
@@ -124,7 +125,7 @@ export default function RenderStrongs(props: Props) {
 								listStyleType: "disc",
 							},
 							"& a.dict": {
-								color: "var(--colors-purple-400)",
+								color: `var(--colors-${defaultPalette}-400)`,
 								textDecoration: "underline",
 							},
 							"& i": {

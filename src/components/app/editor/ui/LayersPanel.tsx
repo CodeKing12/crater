@@ -17,6 +17,7 @@ import {
 } from "solid-icons/tb";
 import { css } from "styled-system/css";
 import type { EditorNode, NodeId } from "../editor-types";
+import { defaultPalette, neutralPalette } from "~/utils/constants";
 
 interface LayerItemProps {
 	node: EditorNode;
@@ -66,10 +67,16 @@ function LayerItem(props: LayerItemProps) {
 			gap={2}
 			alignItems="center"
 			cursor="pointer"
-			bg={props.isSelected ? "purple.900/50" : "transparent"}
+			bg={props.isSelected ? `${defaultPalette}.900/50` : "transparent"}
 			borderLeft="2px solid"
-			borderLeftColor={props.isSelected ? "purple.500" : "transparent"}
-			_hover={{ bg: props.isSelected ? "purple.900/50" : "gray.700/50" }}
+			borderLeftColor={
+				props.isSelected ? `${defaultPalette}.500` : "transparent"
+			}
+			_hover={{
+				bg: props.isSelected
+					? `${defaultPalette}.900/50`
+					: `${neutralPalette}.700/50`,
+			}}
 			opacity={isHidden() ? 0.5 : 1}
 			onClick={() => props.onSelect(props.node.id)}
 			class="layer-item"

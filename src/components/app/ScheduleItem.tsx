@@ -4,7 +4,7 @@ import { Text } from "~/components/ui/text";
 import type { DisplayProps, Theme } from "~/types";
 import { getFocusableStyles } from "~/utils";
 import Image from "./Image";
-import { defaultPalette } from "~/utils/constants";
+import { defaultPalette, neutralPalette } from "~/utils/constants";
 import { TbGripVertical, TbList } from "solid-icons/tb";
 import type { IconTypes } from "solid-icons";
 import { Dynamic } from "solid-js/web";
@@ -34,7 +34,7 @@ export default function ScheduleItem(props: Props) {
 				props.isCurrentPanel,
 			)}
 			_hover={{
-				bgColor: `purple.900/30`,
+				bgColor: `${defaultPalette}.900/30`,
 			}}
 			cursor="pointer"
 			transition="all 0.1s ease"
@@ -54,7 +54,9 @@ export default function ScheduleItem(props: Props) {
 			{/* Icon */}
 			<Box
 				color={
-					props.isFocusItem && props.isCurrentPanel ? "purple.300" : "gray.500"
+					props.isFocusItem && props.isCurrentPanel
+						? `${defaultPalette}.300`
+						: `${neutralPalette}.500`
 				}
 				flexShrink={0}
 				mr={2}

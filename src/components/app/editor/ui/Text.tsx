@@ -47,7 +47,7 @@ import {
 	SliderWithInput,
 } from "./Inputs";
 import { token } from "styled-system/tokens";
-import { defaultPalette } from "~/utils/constants";
+import { defaultPalette, neutralPalette } from "~/utils/constants";
 import { defineStyles } from "@pandacss/dev";
 import { getNum, getReference } from "~/utils";
 import { Text } from "~/components/ui/text";
@@ -446,7 +446,7 @@ export function EditorTextSettings(props: EditorTextSettingsProps) {
 											size="xs"
 											variant={props.node.data.autoResize ? "solid" : "ghost"}
 											colorPalette={
-												props.node.data.autoResize ? "purple" : "gray"
+												props.node.data.autoResize ? defaultPalette : "gray"
 											}
 											onClick={() =>
 												setData({ autoResize: !props.node.data.autoResize })
@@ -490,7 +490,9 @@ export function EditorTextSettings(props: EditorTextSettingsProps) {
 												styles()["font-weight"] === weight ? "solid" : "ghost"
 											}
 											colorPalette={
-												styles()["font-weight"] === weight ? "purple" : "gray"
+												styles()["font-weight"] === weight
+													? defaultPalette
+													: "gray"
 											}
 											onClick={() => setStyle({ "font-weight": weight })}
 											title={`Weight ${weight}`}
@@ -530,7 +532,9 @@ export function EditorTextSettings(props: EditorTextSettingsProps) {
 												styles()["text-align"] === value ? "solid" : "ghost"
 											}
 											colorPalette={
-												styles()["text-align"] === value ? "purple" : "gray"
+												styles()["text-align"] === value
+													? defaultPalette
+													: "gray"
 											}
 											onClick={() =>
 												setStyle({ "text-align": value as TextAlign })
@@ -552,7 +556,9 @@ export function EditorTextSettings(props: EditorTextSettingsProps) {
 												styles()["align-content"] === value ? "solid" : "ghost"
 											}
 											colorPalette={
-												styles()["align-content"] === value ? "purple" : "gray"
+												styles()["align-content"] === value
+													? defaultPalette
+													: "gray"
 											}
 											onClick={() =>
 												setStyle({ "align-content": value as TextAlign })
@@ -645,7 +651,9 @@ export function EditorTextSettings(props: EditorTextSettingsProps) {
 											styles()["text-transform"] === value ? "solid" : "ghost"
 										}
 										colorPalette={
-											styles()["text-transform"] === value ? "purple" : "gray"
+											styles()["text-transform"] === value
+												? defaultPalette
+												: "gray"
 										}
 										onClick={() =>
 											setStyle({
@@ -679,16 +687,16 @@ export function EditorTextSettings(props: EditorTextSettingsProps) {
 											value={String(option().value) as any}
 											fontWeight={400}
 											fontSize="xs"
-											_checked={{ colorPalette: "purple" }}
+											_checked={{ colorPalette: defaultPalette }}
 											cursor="pointer"
 											p={1.5}
 											rounded="md"
 											bg={
 												props.node.data.linkage === option().value
-													? "purple.900/30"
+													? `${defaultPalette}.900/30`
 													: "transparent"
 											}
-											_hover={{ bg: "gray.800" }}
+											_hover={{ bg: `${neutralPalette}.800` }}
 										>
 											<RadioGroup.ItemControl />
 											<RadioGroup.ItemText>{option().text}</RadioGroup.ItemText>
@@ -703,8 +711,8 @@ export function EditorTextSettings(props: EditorTextSettingsProps) {
 							<Field.Root>
 								<Field.Textarea
 									w="full"
-									colorPalette="purple"
-									bg="gray.800"
+									colorPalette={defaultPalette}
+									bg={`${neutralPalette}.800`}
 									border="1px solid"
 									borderColor="gray.700"
 									py={2}
@@ -715,7 +723,7 @@ export function EditorTextSettings(props: EditorTextSettingsProps) {
 									onInput={(e) => setData({ text: e.target.value })}
 									placeholder="Enter your text..."
 									rows={3}
-									_focus={{ borderColor: "purple.500" }}
+									_focus={{ borderColor: `${defaultPalette}.500` }}
 								/>
 							</Field.Root>
 						</Show>

@@ -1,5 +1,9 @@
 import { cva } from "styled-system/css";
-import { SCRIPTURE_TAB_FOCUS_NAME, SONGS_TAB_FOCUS_NAME } from "./constants";
+import {
+	defaultPalette,
+	SCRIPTURE_TAB_FOCUS_NAME,
+	SONGS_TAB_FOCUS_NAME,
+} from "./constants";
 
 // necessary styles for @tanstack/virtual list
 const tanstackVirtualStyles = {
@@ -37,7 +41,7 @@ export const focusStyles = cva({
 					pointerEvents: "none",
 				},
 				_hover: {
-					bgColor: "purple.800/40",
+					bgColor: `${defaultPalette}.800/40`,
 				},
 			},
 		},

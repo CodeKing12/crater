@@ -22,7 +22,12 @@ import { Text } from "../../ui/text";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import { useAppContext } from "~/layouts/AppContext";
 import { useFocusContext } from "~/layouts/FocusContext";
-import { MEDIA_TAB_FOCUS_NAME, THEMES_TAB_FOCUS_NAME } from "~/utils/constants";
+import {
+	defaultPalette,
+	MEDIA_TAB_FOCUS_NAME,
+	neutralPalette,
+	THEMES_TAB_FOCUS_NAME,
+} from "~/utils/constants";
 import {
 	getBaseFocusStyles,
 	getFocusableStyles,
@@ -633,7 +638,7 @@ export default function MediaSelection() {
 					<Show when={mediaControls.query}>{` matching`}</Show>
 				</Text>
 				<Show when={selectedCount > 1}>
-					<HStack gap={1} color="purple.400">
+					<HStack gap={1} color={`${defaultPalette}.400`}>
 						<Text>•</Text>
 						<Text>{selectedCount} selected</Text>
 						<Box
@@ -704,25 +709,29 @@ export default function MediaSelection() {
 						pos="absolute"
 						inset={0}
 						zIndex={100}
-						bg="purple.900/80"
+						bg={`${defaultPalette}.900/80`}
 						borderRadius="lg"
 						m={2}
 						border="3px dashed"
-						borderColor="purple.400"
+						borderColor={`${defaultPalette}.400`}
 						display="flex"
 						alignItems="center"
 						justifyContent="center"
 						pointerEvents="none"
 					>
 						<VStack gap={3}>
-							<Box color="purple.300">
+							<Box color={`${defaultPalette}.300`}>
 								<TbCloudUpload size={56} />
 							</Box>
 							<VStack gap={1}>
-								<Text fontSize="lg" fontWeight="semibold" color="purple.100">
+								<Text
+									fontSize="lg"
+									fontWeight="semibold"
+									color={`${defaultPalette}.100`}
+								>
 									Drop files here
 								</Text>
-								<Text fontSize="13px" color="purple.300">
+								<Text fontSize="13px" color={`${defaultPalette}.300`}>
 									Images and videos will be imported
 								</Text>
 							</VStack>
@@ -781,16 +790,16 @@ export default function MediaSelection() {
 														}}
 														bg={
 															isBatchSelected()
-																? "purple.900/40"
+																? `${defaultPalette}.900/40`
 																: isSelected() && isCurrentPanel()
-																	? "purple.900/30"
+																	? `${defaultPalette}.900/30`
 																	: isCurrent()
-																		? "gray.800/50"
+																		? `${neutralPalette}.800/50`
 																		: "transparent"
 														}
 														borderBottom="1px solid"
-														borderBottomColor="gray.800"
-														_hover={{ bg: "gray.800/30" }}
+														borderBottomColor={`${neutralPalette}.800`}
+														_hover={{ bg: `${defaultPalette}.800/30` }}
 														cursor="pointer"
 														data-panel={MEDIA_TAB_FOCUS_NAME}
 														data-focusId={virtualItem.index}
@@ -806,7 +815,9 @@ export default function MediaSelection() {
 														>
 															<Box
 																color={
-																	isBatchSelected() ? "purple.400" : "gray.500"
+																	isBatchSelected()
+																		? `${defaultPalette}.400`
+																		: `${neutralPalette}.500`
 																}
 																onClick={(e) => {
 																	e.stopPropagation();
@@ -945,11 +956,11 @@ export default function MediaSelection() {
 														border="2px solid"
 														borderColor={
 															isBatchSelected()
-																? "purple.600"
+																? `${defaultPalette}.600`
 																: isSelected() && isCurrentPanel()
-																	? "purple.700"
+																	? `${defaultPalette}.700`
 																	: isCurrent()
-																		? "purple.800"
+																		? `${defaultPalette}.800`
 																		: "transparent"
 														}
 														boxShadow={
@@ -1021,7 +1032,9 @@ export default function MediaSelection() {
 																top={1}
 																left={1}
 																bg={
-																	isBatchSelected() ? "purple.600" : "black/60"
+																	isBatchSelected()
+																		? `${defaultPalette}.600`
+																		: "black/60"
 																}
 																borderRadius="sm"
 																p={0.5}
@@ -1030,7 +1043,7 @@ export default function MediaSelection() {
 																transition="all 0.1s"
 																_hover={{
 																	bg: isBatchSelected()
-																		? "purple.500"
+																		? `${defaultPalette}.500`
 																		: "black/80",
 																}}
 																onClick={(e) => {
@@ -1250,9 +1263,9 @@ const MediaSearchInput = (props: SearchInputProps) => {
 				w="full"
 				bg="transparent"
 				fontSize="13px"
-				_placeholder={{ color: "gray.500" }}
+				_placeholder={{ color: `${neutralPalette}.500` }}
 				_selection={{
-					bgColor: "purple.600",
+					bgColor: `${defaultPalette}.600`,
 				}}
 				value={props.query}
 				placeholder="Search media"
@@ -1266,8 +1279,8 @@ const MediaSearchInput = (props: SearchInputProps) => {
 					size="xs"
 					variant="ghost"
 					mr={1}
-					color="gray.500"
-					_hover={{ color: "gray.300" }}
+					color={`${neutralPalette}.500`}
+					_hover={{ color: `${neutralPalette}.300` }}
 					onClick={() => {
 						const event = { target: { value: "" } } as unknown as InputEvent;
 						props.onFilter(event);
@@ -1365,7 +1378,11 @@ const MediaActionBar = (props: MediaActionBarProps) => {
 					display="flex"
 					alignItems="center"
 					cursor="pointer"
-					color={props.viewMode === "grid" ? "purple.400" : "gray.400"}
+					color={
+						props.viewMode === "grid"
+							? `${defaultPalette}.400`
+							: `${neutralPalette}.400`
+					}
 					_hover={{ color: "gray.200" }}
 					onClick={() => props.onViewModeChange("grid")}
 					title="Grid view"
@@ -1378,7 +1395,11 @@ const MediaActionBar = (props: MediaActionBarProps) => {
 					display="flex"
 					alignItems="center"
 					cursor="pointer"
-					color={props.viewMode === "list" ? "purple.400" : "gray.400"}
+					color={
+						props.viewMode === "list"
+							? `${defaultPalette}.400`
+							: `${neutralPalette}.400`
+					}
 					_hover={{ color: "gray.200" }}
 					onClick={() => props.onViewModeChange("list")}
 					title="List view"

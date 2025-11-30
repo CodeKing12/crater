@@ -19,6 +19,7 @@ import {
 	AiOutlineVerticalAlignBottom,
 } from "solid-icons/ai";
 import { css } from "styled-system/css";
+import { defaultPalette } from "~/utils/constants";
 
 interface ContextMenuItem {
 	label: string;
@@ -237,7 +238,11 @@ export default function EditorContextMenu(props: EditorContextMenuProps) {
 								w={1.5}
 								h={1.5}
 								rounded="full"
-								bg={props.nodeType === "Text" ? "blue.600" : "purple.600"}
+								bg={
+									props.nodeType === "Text"
+										? "blue.600"
+										: `${defaultPalette}.600`
+								}
 							/>
 							<Text fontSize="2xs" fontWeight="400" color="gray.400">
 								{props.nodeType}

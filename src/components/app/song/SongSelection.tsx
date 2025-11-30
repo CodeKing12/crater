@@ -34,7 +34,11 @@ import { Text } from "../../ui/text";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import { useAppContext } from "~/layouts/AppContext";
 import { useFocusContext } from "~/layouts/FocusContext";
-import { defaultPalette, SONGS_TAB_FOCUS_NAME } from "~/utils/constants";
+import {
+	defaultPalette,
+	neutralPalette,
+	SONGS_TAB_FOCUS_NAME,
+} from "~/utils/constants";
 import { focusStyles } from "~/utils/atomic-recipes";
 import { getBaseFocusStyles, getFocusableStyles } from "~/utils";
 import { css } from "styled-system/css";
@@ -386,7 +390,7 @@ export default function SongSelection() {
 													pointerEvents: "none",
 												},
 												_hover: {
-													bgColor: "purple.900/30",
+													bgColor: `${defaultPalette}.900/30`,
 												},
 											}}
 											style={{
@@ -407,8 +411,8 @@ export default function SongSelection() {
 											<Box
 												color={
 													isSelected() && isCurrentPanel()
-														? "purple.300"
-														: "gray.500"
+														? `${defaultPalette}.300`
+														: `${neutralPalette}.500`
 												}
 												flexShrink={0}
 											>
@@ -421,7 +425,7 @@ export default function SongSelection() {
 													color={
 														isSelected() && isCurrentPanel()
 															? "white"
-															: "gray.100"
+															: `${neutralPalette}.100`
 													}
 													truncate
 													w="full"
@@ -433,8 +437,8 @@ export default function SongSelection() {
 														fontSize="12px"
 														color={
 															isSelected() && isCurrentPanel()
-																? "purple.200"
-																: "gray.500"
+																? `${defaultPalette}.200`
+																: `${neutralPalette}.500`
 														}
 														truncate
 														w="full"
@@ -467,10 +471,10 @@ export default function SongSelection() {
 								mt={2}
 								px={4}
 								py={2}
-								bg="purple.900/50"
+								bg={`${defaultPalette}.900/50`}
 								rounded="md"
 								cursor="pointer"
-								_hover={{ bg: "purple.800/50" }}
+								_hover={{ bg: `${defaultPalette}.800/50` }}
 								onClick={() =>
 									updateSongEdit(setAppStore, { open: true, song: null })
 								}
@@ -535,8 +539,8 @@ const SongSearchInput = (props: SearchInputProps) => {
 			borderBottom="1px solid"
 			borderBottomColor="gray.800"
 			_focusWithin={{
-				borderColor: "purple.700",
-				bg: "gray.900",
+				borderColor: `${defaultPalette}.700`,
+				bg: `${neutralPalette}.900`,
 			}}
 			transition="all 0.15s ease"
 			startElement={() => (
@@ -602,9 +606,9 @@ const SongSearchInput = (props: SearchInputProps) => {
 				outline="none"
 				w="full"
 				color="gray.100"
-				_placeholder={{ color: "gray.500" }}
+				_placeholder={{ color: `${neutralPalette}.500` }}
 				_selection={{
-					bgColor: "purple.600",
+					bgColor: `${defaultPalette}.600`,
 				}}
 				value={props.query}
 				placeholder="Search songs..."

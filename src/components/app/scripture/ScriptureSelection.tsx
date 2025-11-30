@@ -21,6 +21,8 @@ import { useAppContext } from "~/layouts/AppContext";
 import { useFocusContext } from "~/layouts/FocusContext";
 import {
 	ALL_SCRIPTURE_DYNAMICSUB_KEY,
+	defaultPalette,
+	neutralPalette,
 	SCRIPTURE_TAB_FOCUS_NAME,
 	SONGS_TAB_FOCUS_NAME,
 } from "~/utils/constants";
@@ -814,7 +816,7 @@ export default function ScriptureSelection() {
 													pointerEvents: "none",
 												},
 												_hover: {
-													bgColor: "purple.900/30",
+													bgColor: `${defaultPalette}.900/30`,
 												},
 											}}
 											style={{
@@ -835,8 +837,8 @@ export default function ScriptureSelection() {
 											<Box
 												color={
 													isSelected() && isCurrentPanel()
-														? "purple.300"
-														: "gray.500"
+														? `${defaultPalette}.300`
+														: `${neutralPalette}.500`
 												}
 												flexShrink={0}
 												alignSelf="flex-start"
@@ -851,8 +853,8 @@ export default function ScriptureSelection() {
 													fontSize="15px"
 													color={
 														isSelected() && isCurrentPanel()
-															? "gray.100"
-															: "gray.400"
+															? `${neutralPalette}.100`
+															: `${neutralPalette}.400`
 													}
 													truncate
 													flex={1}
@@ -866,8 +868,8 @@ export default function ScriptureSelection() {
 													fontSize="14px"
 													color={
 														isSelected() && isCurrentPanel()
-															? "gray.300"
-															: "gray.500"
+															? `${neutralPalette}.300`
+															: `${neutralPalette}.500`
 													}
 													textTransform="capitalize"
 													whiteSpace="nowrap"
@@ -882,7 +884,7 @@ export default function ScriptureSelection() {
 													fontWeight="bold"
 													color={
 														isSelected() && isCurrentPanel()
-															? "purple.200"
+															? `${defaultPalette}.200`
 															: "gray.400"
 													}
 													textTransform="uppercase"
@@ -890,7 +892,7 @@ export default function ScriptureSelection() {
 													flexShrink={0}
 													bg={
 														isSelected() && isCurrentPanel()
-															? "purple.800/60"
+															? `${defaultPalette}.800/60`
 															: "gray.800"
 													}
 													px={1.5}
@@ -970,8 +972,8 @@ const ScriptureSearchInput = (props: SearchInputProps) => {
 			borderBottom="1px solid"
 			borderBottomColor="gray.800"
 			_focusWithin={{
-				borderColor: "purple.700",
-				bg: "gray.900",
+				borderColor: `${defaultPalette}.700`,
+				bg: `${neutralPalette}.900`,
 			}}
 			transition="all 0.15s ease"
 			startElement={() => (
@@ -1024,9 +1026,9 @@ const ScriptureSearchInput = (props: SearchInputProps) => {
 				outline="none"
 				w="full"
 				color="gray.100"
-				_placeholder={{ color: "gray.500" }}
+				_placeholder={{ color: `${neutralPalette}.500` }}
 				_selection={{
-					bgColor: "purple.700",
+					bgColor: `${defaultPalette}.700`,
 				}}
 				ref={props.setSearchInputRef}
 				value={

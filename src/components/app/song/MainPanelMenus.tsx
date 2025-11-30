@@ -17,6 +17,7 @@ import { HStack } from "styled-system/jsx";
 import { Kbd } from "~/components/ui/kbd";
 import { Menu } from "~/components/ui/menu";
 import { useAppContext } from "~/layouts/AppContext";
+import { defaultPalette } from "~/utils/constants";
 
 interface SongPanelContextMenuCompProps {
 	onSongEdit: () => void;
@@ -65,7 +66,7 @@ export const MainDisplayMenuContent = (
 				<Menu.Positioner>
 					<Menu.Content minW="150px">
 						{/* TODO: Populate with actual collections */}
-						<Menu.Item value="new-collection" color="purple.400">
+						<Menu.Item value="new-collection" color={`${defaultPalette}.400`}>
 							+ New Collection
 						</Menu.Item>
 					</Menu.Content>

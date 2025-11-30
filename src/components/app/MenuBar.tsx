@@ -23,6 +23,7 @@ import {
 	defaultPalette,
 	defaultAbsenteePalette,
 	GLOBAL_FOCUS_NAME,
+	neutralPalette,
 } from "~/utils/constants";
 import { IoSettings } from "solid-icons/io";
 import { Portal } from "solid-js/web";
@@ -420,7 +421,7 @@ export default function MenuBar(props: Props) {
 					tooltip={appStore.showLogo ? "Hide Logo" : "Show Logo"}
 					shortcut="L"
 					onClick={() => toggleLogo(setAppStore)}
-					colorPalette={appStore.showLogo ? "purple" : "gray"}
+					colorPalette={appStore.showLogo ? defaultPalette : neutralPalette}
 					variant={appStore.showLogo ? "solid" : "outline"}
 				>
 					<TiSortNumerically size={18} />

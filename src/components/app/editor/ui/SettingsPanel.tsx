@@ -8,6 +8,7 @@ import { Accordion } from "~/components/ui/accordion";
 import { TbChevronDown, TbLink, TbLinkOff } from "solid-icons/tb";
 import { IconButton } from "~/components/ui/icon-button";
 import { css } from "styled-system/css";
+import { defaultPalette } from "~/utils/constants";
 
 // Helper to parse percentage value
 const parsePercent = (value: string | number | undefined): string => {
@@ -40,7 +41,7 @@ const TransformInput = (props: {
 					py: 1,
 					px: 2,
 					h: "28px",
-					_focus: { borderColor: "purple.500" },
+					_focus: { borderColor: `${defaultPalette}.500` },
 				})}
 			/>
 			{props.suffix && (
@@ -249,7 +250,9 @@ export default function SettingsPanel() {
 												<IconButton
 													size="2xs"
 													variant={aspectLocked() ? "solid" : "ghost"}
-													colorPalette={aspectLocked() ? "purple" : "gray"}
+													colorPalette={
+														aspectLocked() ? defaultPalette : "gray"
+													}
 													onClick={() => setAspectLocked(!aspectLocked())}
 													title={
 														aspectLocked()

@@ -13,6 +13,7 @@ import {
 	Show,
 	type JSX,
 } from "solid-js";
+import { defaultPalette } from "~/utils/constants";
 
 // Constants
 const BORDER_WIDTH = 2;
@@ -59,7 +60,7 @@ const getHandleStyle = (handle: ResizeHandle): JSX.CSSProperties => {
 		position: "absolute",
 		width: `${HANDLE_SIZE}px`,
 		height: `${HANDLE_SIZE}px`,
-		"background-color": "var(--colors-purple-500)",
+		"background-color": `var(--colors-${defaultPalette}-500)`,
 		"border-radius": "50%",
 		cursor: cursorMap[handle],
 	};
@@ -499,7 +500,7 @@ export default function RenderEditor() {
 					pointerEvents="none"
 					borderWidth={`${BORDER_WIDTH}px`}
 					borderStyle="dashed"
-					borderColor="purple.500"
+					borderColor={`${defaultPalette}.500`}
 					boxSizing="border-box"
 					zIndex={999}
 					style={indicatorStyle()}

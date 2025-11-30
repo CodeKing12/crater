@@ -7,6 +7,7 @@ import { Text } from "../ui/text";
 import type { PanelGroup } from "~/types/app-context";
 import { AiOutlineFolderOpen } from "solid-icons/ai";
 import type { IconTypes } from "solid-icons";
+import { defaultPalette, neutralPalette } from "~/utils/constants";
 
 interface GroupMeta {
 	title: string;
@@ -65,13 +66,19 @@ export default function SelectionGroups<T extends GroupMeta[]>(
 										_hover={{ bg: "gray.800/50" }}
 										bg={
 											isOpen() && !panelGroup.subGroups?.length
-												? "purple.900/30"
+												? `${defaultPalette}.900/30`
 												: "transparent"
 										}
 										transition="all 0.15s ease"
 									>
 										<HStack gap={2}>
-											<Box color={isOpen() ? "purple.400" : "gray.500"}>
+											<Box
+												color={
+													isOpen()
+														? `${defaultPalette}.400`
+														: `${neutralPalette}.500`
+												}
+											>
 												<Show when={isOpen()} fallback={<TbFolder size={14} />}>
 													<AiOutlineFolderOpen size={14} />
 												</Show>
@@ -110,11 +117,13 @@ export default function SelectionGroups<T extends GroupMeta[]>(
 																cursor="pointer"
 																color={isSelected() ? "white" : "gray.400"}
 																bg={
-																	isSelected() ? "purple.900/40" : "transparent"
+																	isSelected()
+																		? `${defaultPalette}.900/40`
+																		: "transparent"
 																}
 																_hover={{
 																	background: isSelected()
-																		? "purple.900/40"
+																		? `${defaultPalette}.900/40`
 																		: "gray.800/50",
 																	color: isSelected() ? "white" : "gray.200",
 																}}
@@ -133,7 +142,9 @@ export default function SelectionGroups<T extends GroupMeta[]>(
 																	<Show when={props.subgroupIcon}>
 																		<Box
 																			color={
-																				isSelected() ? "purple.400" : "gray.600"
+																				isSelected()
+																					? `${defaultPalette}.400`
+																					: `${neutralPalette}.600`
 																			}
 																		>
 																			<Dynamic
@@ -153,7 +164,7 @@ export default function SelectionGroups<T extends GroupMeta[]>(
 																<Show when={isSelected()}>
 																	<TbCheck
 																		size={14}
-																		color="var(--colors-purple-400)"
+																		color={`var(--colors-${defaultPalette}-400)`}
 																	/>
 																</Show>
 															</HStack>

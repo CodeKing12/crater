@@ -27,6 +27,7 @@ import { getColor, getNum } from "~/utils";
 import { token } from "styled-system/tokens";
 import { Dynamic } from "solid-js/web";
 import { RadioGroup } from "~/components/ui/radio-group";
+import { defaultPalette } from "~/utils/constants";
 
 interface PropUpdateComponent {
 	label?: JSXElement;
@@ -253,7 +254,7 @@ export const RadioInput = (props: RadioInputProps) => {
 						<RadioGroup.Item
 							value={option().value}
 							fontWeight={400}
-							_checked={{ colorPalette: "purple" }}
+							_checked={{ colorPalette: defaultPalette }}
 							cursor="pointer"
 						>
 							<RadioGroup.ItemControl />

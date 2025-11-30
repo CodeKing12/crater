@@ -15,7 +15,7 @@ import {
 import { createStore, produce, reconcile, unwrap } from "solid-js/store";
 import { useAppContext } from "~/layouts/AppContext";
 import { updateSongEdit } from "~/utils/store-helpers";
-import { SONG_EDITOR_FOCUS_NAME } from "~/utils/constants";
+import { defaultPalette, SONG_EDITOR_FOCUS_NAME } from "~/utils/constants";
 import type { OpenEditData } from "~/types";
 import { createAsyncMemo, useDebounceFn } from "solidjs-use";
 import LyricEdit from "../app/song/LyricEdit";
@@ -607,7 +607,7 @@ function SongEditor() {
 								<Show when={isLoading()}>
 									<Flex h="full" alignItems="center" justifyContent="center">
 										<VStack gap={3}>
-											<Spinner size="lg" colorPalette="purple" />
+											<Spinner size="lg" colorPalette={defaultPalette} />
 											<Text color="gray.400">Loading lyrics...</Text>
 										</VStack>
 									</Flex>
@@ -620,7 +620,7 @@ function SongEditor() {
 											<Text color="gray.400">No lyrics yet</Text>
 											<Button
 												size="sm"
-												colorPalette="purple"
+												colorPalette={defaultPalette}
 												onClick={handleAddSection}
 											>
 												<FiPlus size={14} />
@@ -708,7 +708,7 @@ function SongEditor() {
 										w="full"
 										// maxW="400px"
 										border="3px solid"
-										borderColor="purple.700"
+										borderColor={`${defaultPalette}.700`}
 										borderRadius="md"
 										overflow="hidden"
 										shadow="lg"
@@ -735,7 +735,7 @@ function SongEditor() {
 									placeholder="Enter song title..."
 									variant="outline"
 									size="sm"
-									colorPalette={titleError() ? "red" : "purple"}
+									colorPalette={titleError() ? "red" : defaultPalette}
 									borderColor={titleError() ? "red.500" : undefined}
 									ref={titleInputEl}
 									fontWeight="medium"
@@ -755,7 +755,7 @@ function SongEditor() {
 									Cancel
 								</Button>
 								<Button
-									colorPalette="purple"
+									colorPalette={defaultPalette}
 									onClick={saveSong}
 									disabled={isSaving()}
 								>

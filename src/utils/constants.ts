@@ -10,6 +10,7 @@ import type { SongLyric } from "~/types/context";
 
 export const DEFAULT_SCRIPTURE_COLLECTION_ID = 1;
 export const defaultPalette = "purple";
+export const neutralPalette = "neutral";
 export const defaultSupportingPalette = "orange";
 export const defaultAbsenteePalette = "red";
 export const PREVIEW_INDEX_WIDTH = 7;

@@ -92,7 +92,7 @@ const themeTypeConfig: Record<
 	ThemeType,
 	{ icon: typeof TbMusic; label: string; color: string }
 > = {
-	song: { icon: TbMusic, label: "Song", color: "purple" },
+	song: { icon: TbMusic, label: "Song", color: defaultPalette },
 	scripture: { icon: TbBook, label: "Scripture", color: "blue" },
 	presentation: { icon: TbPresentation, label: "Presentation", color: "green" },
 };
@@ -438,7 +438,7 @@ export default function ThemeSelection() {
 														pointerEvents: "none",
 													},
 													_hover: {
-														bgColor: "purple.900/30",
+														bgColor: `${defaultPalette}.900/30`,
 													},
 												}}
 												style={{
@@ -459,7 +459,7 @@ export default function ThemeSelection() {
 												<Box
 													color={
 														isSelected() && isCurrentPanel()
-															? "purple.300"
+															? `${defaultPalette}.300`
 															: "gray.500"
 													}
 													flexShrink={0}
@@ -486,7 +486,7 @@ export default function ThemeSelection() {
 													fontWeight="bold"
 													color={
 														isSelected() && isCurrentPanel()
-															? `${themeTypeConfig[theme.type]?.color || "purple"}.200`
+															? `${themeTypeConfig[theme.type]?.color || defaultPalette}.200`
 															: "gray.500"
 													}
 													textTransform="uppercase"
@@ -494,7 +494,7 @@ export default function ThemeSelection() {
 													flexShrink={0}
 													bg={
 														isSelected() && isCurrentPanel()
-															? `${themeTypeConfig[theme.type]?.color || "purple"}.800/60`
+															? `${themeTypeConfig[theme.type]?.color || defaultPalette}.800/60`
 															: "gray.800"
 													}
 													px={1.5}
@@ -571,7 +571,7 @@ export default function ThemeSelection() {
 								<Box
 									aspectRatio={16 / 9}
 									border="2px solid"
-									borderColor="purple.700"
+									borderColor={`${defaultPalette}.700`}
 									borderRadius="md"
 									overflow="hidden"
 									maxH="full"
@@ -690,7 +690,7 @@ const ThemeSearchInput = (props: SearchInputProps) => {
 				fontSize="13px"
 				_placeholder={{ color: "gray.500" }}
 				_selection={{
-					bgColor: "purple.600",
+					bgColor: `${defaultPalette}.600`,
 				}}
 				value={props.query}
 				placeholder="Search themes"

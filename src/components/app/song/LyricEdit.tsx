@@ -6,6 +6,7 @@ import { IconButton } from "~/components/ui/icon-button";
 import type { SongLyric } from "~/types/context";
 import { FiTrash2, FiCopy, FiMove } from "solid-icons/fi";
 import { Show } from "solid-js";
+import { defaultPalette } from "~/utils/constants";
 
 interface Props extends SongLyric {
 	index: number;
@@ -118,7 +119,7 @@ export default function LyricEdit(props: Props) {
 						outline: "none",
 						bgColor: "gray.800",
 						ring: "2px",
-						ringColor: "purple.600",
+						ringColor: `${defaultPalette}.600`,
 					}}
 					color="gray.300"
 					fontWeight="medium"
@@ -150,7 +151,7 @@ export default function LyricEdit(props: Props) {
 						outline: "none",
 						bgColor: "gray.800",
 						ring: "2px",
-						ringColor: "purple.600",
+						ringColor: `${defaultPalette}.600`,
 					}}
 					scrollbar="hidden"
 					overflow="hidden"

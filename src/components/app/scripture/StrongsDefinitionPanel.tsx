@@ -12,6 +12,7 @@ import {
 	extractStrongsReferences,
 	getUniqueStrongsNumbers,
 } from "~/utils/parser/scripture-parser";
+import { defaultPalette, neutralPalette } from "~/utils/constants";
 
 // Interface matching the backend StrongsEntry
 export interface StrongsEntry {
@@ -238,10 +239,10 @@ function ScriptureWordDisplay(props: ScriptureWordDisplayProps) {
 			borderRadius="sm"
 			bg={
 				props.isSelected
-					? "purple.700"
+					? `${defaultPalette}.700`
 					: hasStrongs()
 						? props.hasDefinition
-							? "purple.900/50"
+							? `${defaultPalette}.900/50`
 							: "yellow.900/30"
 						: "transparent"
 			}
@@ -250,16 +251,20 @@ function ScriptureWordDisplay(props: ScriptureWordDisplayProps) {
 					? "white"
 					: hasStrongs()
 						? props.hasDefinition
-							? "purple.200"
+							? `${defaultPalette}.200`
 							: "yellow.300"
 						: props.word.isItalic
-							? "gray.400"
-							: "gray.200"
+							? `${neutralPalette}.400`
+							: `${neutralPalette}.200`
 			}
 			fontStyle={props.word.isItalic ? "italic" : "normal"}
 			_hover={
 				hasStrongs()
-					? { bg: props.isSelected ? "purple.600" : "purple.800/70" }
+					? {
+							bg: props.isSelected
+								? `${defaultPalette}.600`
+								: `${defaultPalette}.800/70`,
+						}
 					: {}
 			}
 			transition="all 0.15s"
@@ -275,7 +280,9 @@ function ScriptureWordDisplay(props: ScriptureWordDisplayProps) {
 				<Text
 					as="sup"
 					fontSize="8px"
-					color={props.isSelected ? "purple.200" : "gray.500"}
+					color={
+						props.isSelected ? `${defaultPalette}.200` : `${neutralPalette}.500`
+					}
 					ml={0.5}
 				>
 					{props.word.strongs!.number}
@@ -346,7 +353,7 @@ function StrongsDefinitionDisplay(props: StrongsDefinitionDisplayProps) {
 						marginBottom: "0.25rem",
 					},
 					"& a": {
-						color: "var(--colors-purple-400)",
+						color: `var(--colors-${defaultPalette}-400)`,
 						textDecoration: "underline",
 						cursor: "pointer",
 					},

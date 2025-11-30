@@ -39,7 +39,11 @@ import {
 	TbSettings,
 	TbSun,
 } from "solid-icons/tb";
-import { DEFAULT_PROJECTION_DISPLAY_ID } from "~/utils/constants";
+import {
+	DEFAULT_PROJECTION_DISPLAY_ID,
+	defaultPalette,
+	neutralPalette,
+} from "~/utils/constants";
 import { css } from "styled-system/css";
 
 // Section header component for consistent styling
@@ -50,7 +54,12 @@ function SectionHeader(props: {
 }) {
 	return (
 		<HStack gap={3} mb={4}>
-			<Box p={2} bg="purple.900/50" rounded="lg" color="purple.400">
+			<Box
+				p={2}
+				bg={`${defaultPalette}.900/50`}
+				rounded="lg"
+				color={`${defaultPalette}.400`}
+			>
 				<props.icon size={20} />
 			</Box>
 			<VStack alignItems="flex-start" gap={0}>
@@ -204,7 +213,12 @@ export function AppSettingsDialog() {
 				<Dialog.Content minW="550px" maxW="650px">
 					<Dialog.Header pb={2}>
 						<HStack gap={3}>
-							<Box p={2} bg="purple.900/30" rounded="lg" color="purple.400">
+							<Box
+								p={2}
+								bg={`${defaultPalette}.900/30`}
+								rounded="lg"
+								color={`${defaultPalette}.400`}
+							>
 								<TbSettings size={22} />
 							</Box>
 							<VStack alignItems="flex-start" gap={0}>
@@ -388,11 +402,11 @@ export function AppSettingsDialog() {
 														color:
 															settings.theme === "light"
 																? "yellow.400"
-																: "gray.600",
+																: `${neutralPalette}.600`,
 													})}
 												/>
 												<GenericSwitch
-													colorPalette="purple"
+													colorPalette={defaultPalette}
 													checked={settings.theme === "dark"}
 													onCheckedChange={handleThemeToggle}
 												/>
@@ -401,8 +415,8 @@ export function AppSettingsDialog() {
 													class={css({
 														color:
 															settings.theme === "dark"
-																? "purple.400"
-																: "gray.600",
+																? `${defaultPalette}.400`
+																: `${neutralPalette}.600`,
 													})}
 												/>
 											</HStack>
@@ -522,7 +536,7 @@ export function AppSettingsDialog() {
 											description="Display verse numbers in projection"
 										>
 											<GenericSwitch
-												colorPalette="purple"
+												colorPalette={defaultPalette}
 												checked={settings.showVerseNumbers}
 												onCheckedChange={() =>
 													toggleShowVerseNumbers(updateSettings)
@@ -537,7 +551,7 @@ export function AppSettingsDialog() {
 											description="Display book, chapter and verse reference"
 										>
 											<GenericSwitch
-												colorPalette="purple"
+												colorPalette={defaultPalette}
 												checked={settings.showScriptureReference}
 												onCheckedChange={() =>
 													toggleShowScriptureReference(updateSettings)
@@ -592,7 +606,7 @@ export function AppSettingsDialog() {
 											description="Display author/artist below song title"
 										>
 											<GenericSwitch
-												colorPalette="purple"
+												colorPalette={defaultPalette}
 												checked={settings.showSongAuthor}
 												onCheckedChange={() =>
 													toggleShowSongAuthor(updateSettings)
@@ -607,7 +621,7 @@ export function AppSettingsDialog() {
 											description="Display CCLI license number on songs"
 										>
 											<GenericSwitch
-												colorPalette="purple"
+												colorPalette={defaultPalette}
 												checked={settings.showCcliNumber}
 												onCheckedChange={() =>
 													toggleShowCcliNumber(updateSettings)
@@ -622,7 +636,7 @@ export function AppSettingsDialog() {
 											description="Automatically move to next slide during playback"
 										>
 											<GenericSwitch
-												colorPalette="purple"
+												colorPalette={defaultPalette}
 												checked={settings.autoAdvanceSlides}
 												onCheckedChange={() =>
 													toggleAutoAdvanceSlides(updateSettings)
@@ -672,7 +686,7 @@ export function AppSettingsDialog() {
 								Cancel
 							</Button>
 							<Button
-								colorPalette="purple"
+								colorPalette={defaultPalette}
 								onClick={() => setAppStore("openSettings", false)}
 							>
 								Done

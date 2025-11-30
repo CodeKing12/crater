@@ -2,7 +2,7 @@ import { Box, Flex, Stack } from "styled-system/jsx";
 import { Text } from "~/components/ui/text";
 import type { StrongsSection } from "~/types/context";
 import { getFocusableStyles } from "~/utils";
-import { PREVIEW_INDEX_WIDTH } from "~/utils/constants";
+import { defaultPalette, PREVIEW_INDEX_WIDTH } from "~/utils/constants";
 import { css } from "styled-system/css";
 
 interface Props {
@@ -149,7 +149,7 @@ export default function StrongsDisplay(props: Props) {
 								listStyleType: "disc",
 							},
 							"& a.dict": {
-								color: "var(--colors-purple-400)",
+								color: `var(--colors-${defaultPalette}-400)`,
 								textDecoration: "underline",
 							},
 							"& i": {

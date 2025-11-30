@@ -18,7 +18,11 @@ import RenderEditor from "../app/editor/ui/RenderEditor";
 import { useFps } from "solidjs-use";
 import { getToastType, parseThemeData, toaster } from "~/utils";
 import { useFocusContext } from "~/layouts/FocusContext";
-import { defaultThemeKeys, THEME_EDITOR_FOCUS_NAME } from "~/utils/constants";
+import {
+	defaultPalette,
+	defaultThemeKeys,
+	THEME_EDITOR_FOCUS_NAME,
+} from "~/utils/constants";
 import {
 	createEditorHistory,
 	type HistoryState,
@@ -591,7 +595,7 @@ export default function ThemeEditor() {
 								<Button variant="ghost" onClick={closeModal}>
 									Cancel
 								</Button>
-								<Button colorPalette="purple" onClick={saveTheme}>
+								<Button colorPalette={defaultPalette} onClick={saveTheme}>
 									Save Theme
 								</Button>
 							</HStack>
