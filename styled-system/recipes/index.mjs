@@ -55,6 +55,7 @@ export * from './segment-group.mjs';
 export * from './select.mjs';
 export * from './combobox.mjs';
 export * from './slider.mjs';
+export * from './splitter.mjs';
 export * from './stat.mjs';
 export * from './steps.mjs';
 export * from './chakra-switch.mjs';

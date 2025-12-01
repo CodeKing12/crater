@@ -205,7 +205,7 @@ export interface UtilityValues {
 	debug: boolean;
 	containerName: CssProperties["containerName"];
 	cursor: Tokens["cursor"];
-	colorPalette: "transparent" | "current" | "black" | "white" | "whiteAlpha" | "blackAlpha" | "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "cyan" | "purple" | "pink" | "bg" | "fg" | "border";
+	colorPalette: "transparent" | "current" | "black" | "white" | "brand" | "brandDark" | "neutral" | "neutralDark" | "whiteAlpha" | "blackAlpha" | "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "cyan" | "purple" | "pink" | "bg" | "fg" | "border";
 	textStyle: "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl" | "7xl" | "none" | "label";
 	layerStyle: "fill.muted" | "fill.subtle" | "fill.surface" | "fill.solid" | "outline.subtle" | "outline.solid" | "indicator.bottom" | "indicator.top" | "indicator.start" | "indicator.end" | "disabled" | "none";
 	animationStyle: "slide-fade-in" | "slide-fade-out" | "scale-fade-in" | "scale-fade-out";

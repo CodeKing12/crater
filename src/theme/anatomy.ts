@@ -16,8 +16,11 @@ import { ratingGroupAnatomy as arkRatingGroupAnatomy } from "@ark-ui/solid/anato
 import { selectAnatomy as arkSelectAnatomy } from "@ark-ui/solid/anatomy";
 import { sliderAnatomy as arkSliderAnatomy } from "@ark-ui/solid/anatomy";
 import { switchAnatomy as arkSwitchAnatomy } from "@ark-ui/solid/anatomy";
+import { splitterAnatomy as arkSplitterAnatomy } from "@ark-ui/solid/anatomy";
 
 export const accordionAnatomy = arkAccordionAnatomy.extendWith("itemBody");
+
+export const splitterAnatomy = arkSplitterAnatomy;
 
 export const actionBarAnatomy = createAnatomy("action-bar").parts(
 	"positioner",

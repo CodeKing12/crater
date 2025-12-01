@@ -24,6 +24,7 @@ import SchedulePanel from "./SchedulePanel";
 import SongEditor from "../modals/SongEditor";
 import { DisplayContextProvider } from "~/layouts/DisplayContext";
 import { ConfirmDialogProvider } from "../modals/ConfirmDialog";
+import { Splitter } from "../ui/splitter";
 
 const config = {
 	EditorContainer,
@@ -41,26 +42,50 @@ export default function AppControls() {
 				<ConfirmDialogProvider>
 					<Box w="vw" h="vh" bg="bg.muted" pos="relative" overflow="hidden">
 						<MenuBar />
-						<Flex
-							w="full"
-							h="7/12"
-							columns={3}
-							pos="absolute"
-							top="calc(100%/12)"
-						>
-							<Box w="1/3" h="full" border="1px solid" borderColor="gray.700">
-								<SchedulePanel />
-							</Box>
-							<Box w="1/3" h="full" border="1px solid" borderColor="gray.700">
-								<PreviewPanel />
-							</Box>
-							<Box w="1/3" h="full" border="1px solid" borderColor="gray.700">
-								<LivePanel />
-							</Box>
-						</Flex>
-
-						<Box w="full" h="4/12" pos="absolute" bottom="0">
-							<ControlsMain />
+						{/* Main layout with vertical splitter */}
+						<Box w="full" h="11/12" pos="absolute" top="calc(100%/12)">
+							<Splitter.Root
+								defaultSize={[58, 42]}
+								panels={[
+									{ id: "panels", minSize: 30 },
+									{ id: "controls", minSize: 20 },
+								]}
+								orientation="vertical"
+								h="full"
+							>
+								{/* Top panels section */}
+								<Splitter.Panel id="panels" w="full">
+									<Splitter.Root
+										defaultSize={[33, 34, 33]}
+										panels={[
+											{ id: "schedule", minSize: 15 },
+											{ id: "preview", minSize: 20 },
+											{ id: "live", minSize: 15 },
+										]}
+										orientation="horizontal"
+										h="full"
+									>
+										<Splitter.Panel id="schedule" h="full" border="1px solid" borderColor="gray.700">
+											<SchedulePanel />
+										</Splitter.Panel>
+										<Splitter.ResizeTrigger id="schedule:preview" />
+										<Splitter.Panel id="preview" h="full" border="1px solid" borderColor="gray.700">
+											<PreviewPanel />
+										</Splitter.Panel>
+										<Splitter.ResizeTrigger id="preview:live" />
+										<Splitter.Panel id="live" h="full" border="1px solid" borderColor="gray.700">
+											<LivePanel />
+										</Splitter.Panel>
+									</Splitter.Root>
+								</Splitter.Panel>
+								
+								<Splitter.ResizeTrigger id="panels:controls" />
+								
+								{/* Bottom controls section */}
+								<Splitter.Panel id="controls" w="full">
+									<ControlsMain />
+								</Splitter.Panel>
+							</Splitter.Root>
 						</Box>
 
 						<AppSettingsDialog />

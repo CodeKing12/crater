@@ -56,6 +56,7 @@ export * from './segment-group';
 export * from './select';
 export * from './combobox';
 export * from './slider';
+export * from './splitter';
 export * from './stat';
 export * from './steps';
 export * from './chakra-switch';
