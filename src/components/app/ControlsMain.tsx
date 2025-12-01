@@ -1,3 +1,4 @@
+import { Show } from "solid-js";
 import { HStack, VStack } from "styled-system/jsx";
 import { Tabs } from "../ui/tabs";
 import { IconButton } from "../ui/icon-button";
@@ -40,7 +41,7 @@ import MediaSelection from "./media/MediaSelection";
 
 export default function ControlsMain() {
 	const { changeFocusPanel } = useFocusContext();
-	const { appStore, setAppStore } = useAppContext();
+	const { appStore, setAppStore, settings } = useAppContext();
 	const handleAddToSchedule = () => {
 		if (appStore.previewItem) {
 			addToSchedule(setAppStore, [{ ...appStore.previewItem }]);
@@ -123,10 +124,12 @@ export default function ControlsMain() {
 							<TbBible />
 							Scripture
 						</Tabs.Trigger>
-						<Tabs.Trigger value={STRONGS_TAB_FOCUS_NAME} px={4}>
-							<TbBook2 />
-							Strong's
-						</Tabs.Trigger>
+						<Show when={settings.showStrongsTab}>
+							<Tabs.Trigger value={STRONGS_TAB_FOCUS_NAME} px={4}>
+								<TbBook2 />
+								Strong's
+							</Tabs.Trigger>
+						</Show>
 						<Tabs.Trigger value={MEDIA_TAB_FOCUS_NAME} px={4}>
 							<TbVideo />
 							Media
@@ -164,9 +167,11 @@ export default function ControlsMain() {
 					<Tabs.Content h="full" value={SCRIPTURE_TAB_FOCUS_NAME} py={0}>
 						<ScriptureSelection />
 					</Tabs.Content>
-					<Tabs.Content h="full" value={STRONGS_TAB_FOCUS_NAME} py={0}>
-						<StrongsSelection />
-					</Tabs.Content>
+					<Show when={settings.showStrongsTab}>
+						<Tabs.Content h="full" value={STRONGS_TAB_FOCUS_NAME} py={0}>
+							<StrongsSelection />
+						</Tabs.Content>
+					</Show>
 					<Tabs.Content value={MEDIA_TAB_FOCUS_NAME} h="full" py={0}>
 						<MediaSelection />
 					</Tabs.Content>

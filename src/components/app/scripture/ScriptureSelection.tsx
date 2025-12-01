@@ -528,6 +528,21 @@ export default function ScriptureSelection() {
 		setScriptureControls("query", (e.target as HTMLInputElement).value);
 	};
 
+	// Reset focus to first item when search query changes
+	createEffect(
+		on(
+			() => scriptureControls.query,
+			() => {
+				// Reset to first result when query changes
+				if (filteredScriptures().length > 0) {
+					changeFluidFocus(0);
+				} else {
+					changeFluidFocus(null);
+				}
+			},
+		),
+	);
+
 	const allBooks = bibleData
 		.map((obj) => ({ name: obj.name, id: obj.id }))
 		.toSorted();

@@ -18,6 +18,7 @@ import {
 	updateDefaultTranslation,
 	toggleShowVerseNumbers,
 	toggleShowScriptureReference,
+	toggleShowStrongsTab,
 	toggleShowSongAuthor,
 	toggleShowCcliNumber,
 	toggleAutoAdvanceSlides,
@@ -27,6 +28,7 @@ import type { BasicSelectOption, DisplayBounds } from "~/types";
 import type { Display } from "electron";
 import { Text } from "../ui/text";
 import { GenericSwitch } from "../ui/switch";
+import { Checkbox } from "../ui/checkbox";
 import {
 	TbBook,
 	TbCheck,
@@ -535,7 +537,7 @@ export function AppSettingsDialog() {
 											label="Show Verse Numbers"
 											description="Display verse numbers in projection"
 										>
-											<GenericSwitch
+											<Checkbox
 												colorPalette={defaultPalette}
 												checked={settings.showVerseNumbers}
 												onCheckedChange={() =>
@@ -550,11 +552,26 @@ export function AppSettingsDialog() {
 											label="Show Reference"
 											description="Display book, chapter and verse reference"
 										>
-											<GenericSwitch
+											<Checkbox
 												colorPalette={defaultPalette}
 												checked={settings.showScriptureReference}
 												onCheckedChange={() =>
 													toggleShowScriptureReference(updateSettings)
+												}
+											/>
+										</SettingRow>
+
+										<Divider my={2} borderColor="gray.800" />
+
+										<SettingRow
+											label="Show Strong's Tab"
+											description="Show the Strong's concordance tab in the main interface"
+										>
+											<Checkbox
+												colorPalette={defaultPalette}
+												checked={settings.showStrongsTab}
+												onCheckedChange={() =>
+													toggleShowStrongsTab(updateSettings)
 												}
 											/>
 										</SettingRow>
@@ -605,7 +622,7 @@ export function AppSettingsDialog() {
 											label="Show Song Author"
 											description="Display author/artist below song title"
 										>
-											<GenericSwitch
+											<Checkbox
 												colorPalette={defaultPalette}
 												checked={settings.showSongAuthor}
 												onCheckedChange={() =>
@@ -620,7 +637,7 @@ export function AppSettingsDialog() {
 											label="Show CCLI Number"
 											description="Display CCLI license number on songs"
 										>
-											<GenericSwitch
+											<Checkbox
 												colorPalette={defaultPalette}
 												checked={settings.showCcliNumber}
 												onCheckedChange={() =>
@@ -635,7 +652,7 @@ export function AppSettingsDialog() {
 											label="Auto-advance Slides"
 											description="Automatically move to next slide during playback"
 										>
-											<GenericSwitch
+											<Checkbox
 												colorPalette={defaultPalette}
 												checked={settings.autoAdvanceSlides}
 												onCheckedChange={() =>

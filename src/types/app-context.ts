@@ -121,6 +121,7 @@ export interface AppSettings {
 	defaultTranslation: string;
 	showVerseNumbers: boolean;
 	showScriptureReference: boolean;
+	showStrongsTab: boolean;
 	// Song settings
 	showSongAuthor: boolean;
 	showCcliNumber: boolean;

@@ -179,6 +179,7 @@ export const defaultAppSettings: AppSettings = {
 	defaultTranslation: "NKJV",
 	showVerseNumbers: true,
 	showScriptureReference: true,
+	showStrongsTab: true,
 	// Song settings
 	showSongAuthor: true,
 	showCcliNumber: false,

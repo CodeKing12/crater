@@ -304,6 +304,21 @@ export default function SongSelection() {
 		setSongControls("query", (e.target as HTMLInputElement).value);
 	};
 
+	// Reset focus to first item when search query changes
+	createEffect(
+		on(
+			() => songControls.query,
+			() => {
+				// Reset to first result when query changes
+				if (filteredSongs().length > 0) {
+					changeFluidFocus(0);
+				} else {
+					changeFluidFocus(null)
+				}
+			},
+		),
+	);
+
 	const updateSearchMode = () => {
 		setSongControls("searchMode", (former) =>
 			former === "search" ? "title" : "search",
