@@ -88,6 +88,7 @@ import {
 	getSavedSchedules,
 	saveScheduleToDB,
 } from "./database/app-operations.js";
+import { ndiSender, type NDISenderConfig } from "./ndi/index.js";
 import url from "url";
 // import processSongs from './scripts/songs-importer/index.js'
 // import grandiose from 'grandiose'
@@ -890,3 +891,67 @@ ipcMain.handle("get-recent-schedules", getSavedSchedules);
 ipcMain.handle("get-schedule-data", async (_, schedule: SavedSchedule) => {
 	return await fs.promises.readFile(schedule.path, { encoding: "utf8" });
 });
+
+/*
+ * ======================================================================================
+ *                                NDI IPC Handlers
+ * ======================================================================================
+ */
+
+ipcMain.handle("ndi-get-version", () => {
+	return ndiSender.getVersion();
+});
+
+ipcMain.handle("ndi-is-supported", () => {
+	return ndiSender.isSupportedCPU();
+});
+
+ipcMain.handle("ndi-get-status", () => {
+	return ndiSender.getStatus();
+});
+
+ipcMain.handle(
+	"ndi-start",
+	async (_, config?: Partial<NDISenderConfig>) => {
+		if (!projectionWindow) {
+			logger.warn("Cannot start NDI: projection window is not open");
+			return {
+				success: false,
+				message: "Projection window must be open to start NDI streaming",
+			};
+		}
+
+		const success = await ndiSender.start(projectionWindow, config);
+		return {
+			success,
+			message: success
+				? "NDI streaming started"
+				: "Failed to start NDI streaming",
+			status: ndiSender.getStatus(),
+		};
+	},
+);
+
+ipcMain.handle("ndi-stop", () => {
+	ndiSender.stop();
+	return {
+		success: true,
+		message: "NDI streaming stopped",
+		status: ndiSender.getStatus(),
+	};
+});
+
+ipcMain.handle(
+	"ndi-update-config",
+	async (_, config: Partial<NDISenderConfig>) => {
+		const success = await ndiSender.updateConfig(config);
+		return {
+			success,
+			message: success
+				? "NDI configuration updated"
+				: "Failed to update NDI configuration",
+			status: ndiSender.getStatus(),
+		};
+	},
+);
+

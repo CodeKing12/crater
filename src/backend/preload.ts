@@ -135,4 +135,22 @@ contextBridge.exposeInMainWorld("electronAPI", {
 	clearLogs: () => ipcRenderer.invoke("clear-logs"),
 	sendLogsEmail: (userMessage: string) =>
 		ipcRenderer.invoke("send-logs-email", userMessage),
+
+	// NDI Functions
+	ndiGetVersion: () => ipcRenderer.invoke("ndi-get-version"),
+	ndiIsSupported: () => ipcRenderer.invoke("ndi-is-supported"),
+	ndiGetStatus: () => ipcRenderer.invoke("ndi-get-status"),
+	ndiStart: (config?: {
+		name?: string;
+		frameRate?: number;
+		width?: number;
+		height?: number;
+	}) => ipcRenderer.invoke("ndi-start", config),
+	ndiStop: () => ipcRenderer.invoke("ndi-stop"),
+	ndiUpdateConfig: (config: {
+		name?: string;
+		frameRate?: number;
+		width?: number;
+		height?: number;
+	}) => ipcRenderer.invoke("ndi-update-config", config),
 });

@@ -19,6 +19,29 @@ import type {
 import { Display } from "electron/main";
 import type { SavedSchedule } from "~/backend/types";
 
+export interface NDISenderConfig {
+	name?: string;
+	frameRate?: number;
+	width?: number;
+	height?: number;
+}
+
+export interface NDISenderStatus {
+	isStreaming: boolean;
+	name: string;
+	frameRate: number;
+	resolution: { width: number; height: number };
+	framesSent: number;
+	errors: number;
+	error?: string;
+}
+
+export interface NDIResponse {
+	success: boolean;
+	message: string;
+	status?: NDISenderStatus;
+}
+
 export interface ChapterCountObj {
 	[book: string]: number;
 }
@@ -216,6 +239,14 @@ export interface IElectronAPI {
 		logPath?: string;
 		error?: string;
 	}>;
+
+	// NDI Functions
+	ndiGetVersion: () => Promise<string>;
+	ndiIsSupported: () => Promise<boolean>;
+	ndiGetStatus: () => Promise<NDISenderStatus>;
+	ndiStart: (config?: NDISenderConfig) => Promise<NDIResponse>;
+	ndiStop: () => Promise<NDIResponse>;
+	ndiUpdateConfig: (config: NDISenderConfig) => Promise<NDIResponse>;
 }
 
 declare global {

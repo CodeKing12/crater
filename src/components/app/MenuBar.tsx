@@ -8,6 +8,8 @@ import { IconButton } from "../ui/icon-button";
 import { Text } from "../ui/text";
 import {
 	TbArrowsRightDown,
+	TbBroadcast,
+	TbBroadcastOff,
 	TbChevronRight,
 	TbClearAll,
 	TbDeviceFloppy,
@@ -64,6 +66,8 @@ interface MenuControlsType {
 	scheduleName: string;
 	openSchedModal: boolean;
 	loadedSchedule: SavedSchedule | null;
+	ndiStreaming: boolean;
+	ndiSupported: boolean | null;
 }
 
 export default function MenuBar(props: Props) {
@@ -72,6 +76,22 @@ export default function MenuBar(props: Props) {
 		scheduleName: "",
 		openSchedModal: false,
 		loadedSchedule: null,
+		ndiStreaming: false,
+		ndiSupported: null,
+	});
+
+	// Check NDI support on mount
+	createEffect(() => {
+		window.electronAPI.ndiIsSupported().then((supported) => {
+			setMenuStore("ndiSupported", supported);
+			if (!supported) {
+				logger.warn(["NDI is not supported on this CPU"]);
+			}
+		});
+		// Also check if NDI is already streaming
+		window.electronAPI.ndiGetStatus().then((status) => {
+			setMenuStore("ndiStreaming", status.isStreaming);
+		});
 	});
 
 	const handleShortcutSave: FocusEventHandlerFn = ({ event }) => {
@@ -126,6 +146,79 @@ export default function MenuBar(props: Props) {
 		toggleLive(setAppStore); // toggleLive(setAppStore, checked)
 		console.log("New Live: ", appStore.isLive);
 	}
+
+	async function handleNdiToggle() {
+		// Check the status first to see if there's an error message
+		const status = await window.electronAPI.ndiGetStatus();
+		if (status.error) {
+			toaster.create({
+				type: "error",
+				title: "NDI Not Available",
+				description: status.error,
+			});
+			return;
+		}
+
+		if (!menuStore.ndiSupported) {
+			toaster.create({
+				type: "error",
+				title: "NDI not supported",
+				description: "NDI sending is not supported by the current library",
+			});
+			return;
+		}
+
+		if (!appStore.isLive) {
+			toaster.create({
+				type: "warning",
+				title: "Go Live first",
+				description: "You must be live to start NDI streaming",
+			});
+			return;
+		}
+
+		try {
+			if (menuStore.ndiStreaming) {
+				const result = await window.electronAPI.ndiStop();
+				setMenuStore("ndiStreaming", false);
+				toaster.create({
+					type: getToastType(result.success),
+					title: result.message,
+				});
+			} else {
+				const result = await window.electronAPI.ndiStart();
+				setMenuStore("ndiStreaming", result.success);
+				if (!result.success && result.status?.error) {
+					toaster.create({
+						type: "error",
+						title: "NDI Not Available",
+						description: result.status.error,
+					});
+				} else {
+					toaster.create({
+						type: getToastType(result.success),
+						title: result.message,
+					});
+				}
+			}
+		} catch (error) {
+			logger.error(["NDI toggle error:", error]);
+			toaster.create({
+				type: "error",
+				title: "NDI Error",
+				description: "Failed to toggle NDI streaming",
+			});
+		}
+	}
+
+	// Stop NDI when going off-live
+	createEffect(() => {
+		if (!appStore.isLive && menuStore.ndiStreaming) {
+			window.electronAPI.ndiStop().then(() => {
+				setMenuStore("ndiStreaming", false);
+			});
+		}
+	});
 
 	createEffect(() => {
 		if (appStore.isLive) {
@@ -439,6 +532,29 @@ export default function MenuBar(props: Props) {
 					<TbClearAll size={18} />
 					<Text fontSize="sm">Clear</Text>
 				</TooltipButton>
+
+				{/* NDI Toggle */}
+				<Show when={menuStore.ndiSupported !== false}>
+					<TooltipButton
+						tooltip={
+							menuStore.ndiStreaming
+								? "Stop NDI Streaming"
+								: "Start NDI Streaming"
+						}
+						onClick={handleNdiToggle}
+						disabled={!appStore.isLive && !menuStore.ndiStreaming}
+						colorPalette={menuStore.ndiStreaming ? "blue" : "gray"}
+						variant={menuStore.ndiStreaming ? "solid" : "outline"}
+					>
+						<Show
+							when={menuStore.ndiStreaming}
+							fallback={<TbBroadcast size={18} />}
+						>
+							<TbBroadcastOff size={18} />
+						</Show>
+						<Text fontSize="sm">NDI</Text>
+					</TooltipButton>
+				</Show>
 
 				<Divider orientation="vertical" h={6} />
 
