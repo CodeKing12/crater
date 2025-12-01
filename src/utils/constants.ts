@@ -26,7 +26,7 @@ export const defaultScripture: ScriptureVerse = {
 	book_id: 43,
 	book_name: "joshua",
 	chapter: 1,
-	verse: 8,
+	verse: "8",
 	text: "This Book of the Law shall not depart from your mouth, but you shall meditate in it day and night, that you may observe to do according to all that is written in it. For then you will make your way prosperous, and then you will have good success.",
 	version: "NKJV",
 };

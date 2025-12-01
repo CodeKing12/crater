@@ -22,7 +22,7 @@ export interface ScriptureVerse {
 	book_name: string;
 	scripture_id: number;
 	chapter: number;
-	verse: number;
+	verse: string;
 	text: string;
 }
 

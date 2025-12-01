@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS scriptures (
     book_name TEXT NOT NULL,
     version TEXT NOT NULL,
     chapter INTEGER NOT NULL,
-    verse INTEGER NOT NULL,
+    verse TEXT NOT NULL,
     text TEXT NOT NULL,
     UNIQUE(bible_id, book_id, chapter, verse),
     FOREIGN KEY (bible_id) REFERENCES bibles (id) ON DELETE CASCADE,

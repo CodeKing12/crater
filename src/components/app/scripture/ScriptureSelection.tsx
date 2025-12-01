@@ -49,6 +49,100 @@ import bookInfo from "~/utils/parser/books.json";
 import { Input } from "~/components/ui/input";
 import { appLogger } from "~/utils/logger";
 
+/**
+ * Check if a verse string matches a target verse number.
+ * Handles various verse formats:
+ * - Exact match: "2" matches 2
+ * - Ranges: "1-2" matches 1 and 2, "2-4" matches 2, 3, 4
+ * - Subdivisions: "2a", "2b" match 2
+ * - Combined: "1-2a" matches 1 and 2
+ */
+function verseMatches(
+	verseStr: string | number,
+	targetVerse: number | string,
+): boolean {
+	const verse = String(verseStr);
+	const target =
+		typeof targetVerse === "string" ? parseInt(targetVerse) : targetVerse;
+
+	if (isNaN(target)) return false;
+
+	// Check for exact match first (handles simple cases like "2" === 2)
+	const simpleNum = parseInt(verse);
+	if (!isNaN(simpleNum) && simpleNum === target && verse === String(target)) {
+		return true;
+	}
+
+	// Check for verse ranges like "1-2", "2-4"
+	const rangeMatch = verse.match(/^(\d+)-(\d+)/);
+	if (rangeMatch) {
+		const start = parseInt(rangeMatch[1]);
+		const end = parseInt(rangeMatch[2]);
+		if (target >= start && target <= end) {
+			return true;
+		}
+	}
+
+	// Check for verse subdivisions like "2a", "2b", "15b"
+	const subdivisionMatch = verse.match(/^(\d+)[a-z]/i);
+	if (subdivisionMatch) {
+		const baseVerse = parseInt(subdivisionMatch[1]);
+		if (baseVerse === target) {
+			return true;
+		}
+	}
+
+	// Check for simple numeric match (handles "2" matching 2)
+	if (simpleNum === target) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Find the best matching verse index from a list of scriptures.
+ * Prefers exact matches over range/subdivision matches.
+ * Returns -1 if no match found.
+ */
+function findBestVerseMatch(
+	scriptures: ScriptureVerse[],
+	book: string,
+	chapter: number,
+	targetVerse: number | string,
+): number {
+	const normalizedBook = book.toLowerCase();
+	const target =
+		typeof targetVerse === "string" ? parseInt(targetVerse) : targetVerse;
+
+	let exactMatchIndex = -1;
+	let rangeMatchIndex = -1;
+
+	for (let i = 0; i < scriptures.length; i++) {
+		const scripture = scriptures[i];
+		if (
+			scripture.book_name.toLowerCase() === normalizedBook &&
+			scripture.chapter === chapter
+		) {
+			const verseStr = String(scripture.verse);
+
+			// Check for exact match first
+			if (verseStr === String(target)) {
+				exactMatchIndex = i;
+				break; // Exact match found, no need to continue
+			}
+
+			// Check for range/subdivision match (keep first one found)
+			if (rangeMatchIndex === -1 && verseMatches(verseStr, target)) {
+				rangeMatchIndex = i;
+			}
+		}
+	}
+
+	// Prefer exact match, fall back to range match
+	return exactMatchIndex !== -1 ? exactMatchIndex : rangeMatchIndex;
+}
+
 type ScripturePanelGroupValues = "all" | "collections" | "favorites";
 type ScriptureListData = {
 	title: string;
@@ -69,7 +163,7 @@ type ScriptureControlsData = {
 interface StageMarkData {
 	book?: string;
 	chapter?: number;
-	verse?: number;
+	verse?: number | string;
 	stage: number;
 	currentValue: string;
 	selectionStart: number;
@@ -314,6 +408,30 @@ export default function ScriptureSelection() {
 		}
 	});
 
+	// Track the currently selected scripture reference for translation changes
+	// This stores the reference independently of stageMarkData which only updates in "special" mode
+	let selectedScriptureRef: {
+		book_name: string;
+		chapter: number;
+		verse: string;
+	} | null = null;
+
+	// Update the selected scripture reference whenever fluid focus changes
+	createEffect(() => {
+		const fluidId = fluidFocusId();
+		const scriptures = filteredScriptures();
+		if (typeof fluidId === "number" && scriptures.length > 0) {
+			const scripture = scriptures[fluidId];
+			if (scripture) {
+				selectedScriptureRef = {
+					book_name: scripture.book_name,
+					chapter: scripture.chapter,
+					verse: scripture.verse,
+				};
+			}
+		}
+	});
+
 	// Re-sync selected verse when translation changes
 	// This ensures the same book/chapter/verse stays selected even though the index might change
 	let previousTranslation = scriptureControls.translation;
@@ -325,22 +443,20 @@ export default function ScriptureSelection() {
 		if (
 			currentTranslation !== previousTranslation &&
 			scriptures.length > 0 &&
-			stageMarkData.book
+			selectedScriptureRef
 		) {
-			const scriptureIndex = scriptures.findIndex(
-				(scripture) =>
-					scripture.book_name === stageMarkData.book?.toLowerCase() &&
-					scripture.chapter === stageMarkData.chapter &&
-					scripture.verse === stageMarkData.verse,
+			const scriptureIndex = findBestVerseMatch(
+				scriptures,
+				selectedScriptureRef!.book_name,
+				selectedScriptureRef!.chapter,
+				selectedScriptureRef!.verse,
 			);
 			console.log(
 				"Translation changed, re-syncing focus:",
 				previousTranslation,
 				"->",
 				currentTranslation,
-				stageMarkData.book,
-				stageMarkData.chapter,
-				stageMarkData.verse,
+				selectedScriptureRef,
 				"New index:",
 				scriptureIndex,
 			);
@@ -375,13 +491,15 @@ export default function ScriptureSelection() {
 			scripture?.book_name,
 			stageMarkData.book,
 		);
-		if (
-			scripture &&
-			(scripture.book_name.toLowerCase() !==
-				stageMarkData.book?.toLowerCase() ||
-				scripture.chapter !== stageMarkData.chapter ||
-				scripture.verse !== stageMarkData.verse)
-		) {
+		// Check if the scripture is different from what's in stageMarkData
+		// Use verseMatches to handle verse ranges/subdivisions (e.g., "1-4" matches verse 1)
+		const bookMatches =
+			scripture?.book_name.toLowerCase() === stageMarkData.book?.toLowerCase();
+		const chapterMatches = scripture?.chapter === stageMarkData.chapter;
+		const verseIsEquivalent =
+			scripture && verseMatches(scripture.verse, stageMarkData.verse ?? 1);
+
+		if (scripture && (!bookMatches || !chapterMatches || !verseIsEquivalent)) {
 			console.log("Check Successful: ", scripture);
 			setStageMarkData({
 				book: scripture.book_name,
@@ -473,11 +591,11 @@ export default function ScriptureSelection() {
 	);
 
 	const handlerUpdateFluidFocus = () => {
-		const scriptureIndex = filteredScriptures().findIndex(
-			(scripture) =>
-				scripture.book_name === stageMarkData.book?.toLowerCase() &&
-				scripture.chapter === stageMarkData.chapter &&
-				scripture.verse === stageMarkData.verse,
+		const scriptureIndex = findBestVerseMatch(
+			filteredScriptures(),
+			stageMarkData.book ?? "",
+			stageMarkData.chapter ?? 1,
+			stageMarkData.verse ?? 1,
 		);
 		console.log(
 			"Found Index: ",
@@ -496,12 +614,12 @@ export default function ScriptureSelection() {
 		e.preventDefault();
 		const target = e.target as HTMLInputElement;
 		let stage = stageMarkData.stage;
-		let [_, book, chapter, verse] = [
-			"",
-			stageMarkData.book ?? "",
-			stageMarkData.chapter ?? 1,
-			stageMarkData.verse ?? 1,
-		];
+		let book: string = stageMarkData.book ?? "";
+		let chapter: number = stageMarkData.chapter ?? 1;
+		let verse: number =
+			typeof stageMarkData.verse === "string"
+				? parseInt(stageMarkData.verse) || 1
+				: stageMarkData.verse ?? 1;
 		let newVal;
 		if (e.data) {
 			newVal = stageMarkData.currentValue + e.data;

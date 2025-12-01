@@ -16,7 +16,7 @@ interface BaseText {
 }
 
 interface Scripture extends BaseText {
-	verse: number;
+	verse: string;
 }
 
 type BookChapterCount = {
@@ -37,7 +37,7 @@ type FetchChapterParams = {
 type FetchScriptureParams = {
 	book: string;
 	chapter: number;
-	verse: number;
+	verse: string;
 	version: string;
 };
 
@@ -91,7 +91,9 @@ const fetchChapter = ({
       WHERE book_name = ?
         AND chapter = ?
         AND version = ?
-      ORDER BY verse ASC
+      ORDER BY 
+        CAST(SUBSTR(verse, 1, INSTR(verse || '-', '-') - 1) AS INTEGER),
+        verse
     `,
 		)
 		.all(book, chapter, version) as Scripture[];
@@ -139,7 +141,9 @@ const fetchAllScripture = (version: string) => {
 					FROM scriptures s
 					JOIN bibles b ON s.bible_id = b.id
 					WHERE b.version = ?
-					ORDER BY s.book_id, s.chapter, s.verse
+					ORDER BY s.book_id, s.chapter, 
+						CAST(SUBSTR(s.verse, 1, INSTR(s.verse || '-', '-') - 1) AS INTEGER),
+						s.verse
 			`;
 
 		const rows = bibleDB.prepare(query).all(version);
