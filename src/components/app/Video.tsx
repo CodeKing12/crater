@@ -1,4 +1,4 @@
-import { createEffect, onCleanup, onMount, splitProps } from "solid-js";
+import { onCleanup, onMount, splitProps } from "solid-js";
 import type { JSX } from "solid-js/jsx-runtime";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
@@ -11,6 +11,14 @@ interface Props extends JSX.VideoHTMLAttributes<HTMLVideoElement> {
 	synchronize?: string[];
 }
 
+interface VideoSyncMessage {
+	event: "play" | "pause" | "ended" | "volumechange";
+	sender: string;
+	recipients: string[];
+	volume?: number;
+	muted?: boolean;
+}
+
 export default function Video(_props: Props) {
 	const [props, rest] = splitProps(_props, [
 		"src",
@@ -21,7 +29,9 @@ export default function Video(_props: Props) {
 		"synchronize",
 	]);
 	let player: Player;
-	let channel: BroadcastChannel;
+	let channel: BroadcastChannel | undefined;
+	// Flag to prevent infinite sync loops
+	let isSyncingFromRemote = false;
 
 	onMount(() => {
 		if (props.id && !props.player) {
@@ -33,55 +43,104 @@ export default function Video(_props: Props) {
 			player = props.player;
 		}
 
-		player.ready(player.play);
+		player.ready(() => {
+			player.play();
+		});
 
 		if (props.synchronize && props.synchronize.length) {
 			channel = new BroadcastChannel("sync-video-playback");
-			player.on("play", () => {
+
+			const onPlay = () => {
+				if (isSyncingFromRemote) return;
 				logger.info("HANDLING PLAY SYNCHRONIZATION");
-				channel.postMessage({
+				channel?.postMessage({
 					event: "play",
 					sender: props.id,
 					recipients: props.synchronize,
-				});
-			});
+				} as VideoSyncMessage);
+			};
 
-			player.on("pause", () => {
+			const onPause = () => {
+				if (isSyncingFromRemote) return;
 				logger.info("HANDLING PAUSE SYNCHRONIZATION");
-				channel.postMessage({
+				channel?.postMessage({
 					event: "pause",
 					sender: props.id,
 					recipients: props.synchronize,
-				});
-				// props.synchronize?.map((id) => {
-				// 	const pl = videojs.getPlayer(id);
-				// 	logger.info(["Synchronizing: ", pl, "PAUSE"]);
-				// 	if (pl) {
-				// 		pl.pause();
-				// 	}
-				// });
-			});
+				} as VideoSyncMessage);
+			};
 
-			channel.addEventListener("message", (message) => {
-				const syncData = message.data;
+			const onEnded = () => {
+				if (isSyncingFromRemote) return;
+				logger.info("HANDLING ENDED SYNCHRONIZATION");
+				channel?.postMessage({
+					event: "ended",
+					sender: props.id,
+					recipients: props.synchronize,
+				} as VideoSyncMessage);
+			};
+
+			const onVolumeChange = () => {
+				if (isSyncingFromRemote) return;
+				logger.info("HANDLING VOLUME SYNCHRONIZATION");
+				channel?.postMessage({
+					event: "volumechange",
+					sender: props.id,
+					recipients: props.synchronize,
+					volume: player.volume(),
+					muted: player.muted(),
+				} as VideoSyncMessage);
+			};
+
+			player.on("play", onPlay);
+			player.on("pause", onPause);
+			player.on("ended", onEnded);
+			player.on("volumechange", onVolumeChange);
+
+			const onMessage = (message: MessageEvent) => {
+				const syncData = message.data as VideoSyncMessage;
 				console.log("Video sync received: ", syncData, message);
+
 				if (
 					syncData.sender !== props.id &&
-					syncData.recipients.includes(props.id)
+					syncData.recipients.includes(props.id!)
 				) {
+					isSyncingFromRemote = true;
 					logger.info([syncData.event, player, player.pause, player.play]);
+
 					switch (syncData.event) {
 						case "pause":
 							player.pause();
 							break;
+
 						case "play":
 							player.play();
 							break;
-						// case "seek":
-						// 	player.
+
+						case "ended":
+							player.pause();
+							if (player.duration()) {
+								player.currentTime(player.duration());
+							}
+							break;
+
+						case "volumechange":
+							if (typeof syncData.volume === "number") {
+								player.volume(syncData.volume);
+							}
+							if (typeof syncData.muted === "boolean") {
+								player.muted(syncData.muted);
+							}
+							break;
 					}
+
+					setTimeout(() => {
+						isSyncingFromRemote = false;
+					}, 100);
 				}
-			});
+			};
+
+			channel.addEventListener("message", onMessage);
 		}
 	});
 
