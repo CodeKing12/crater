@@ -165,6 +165,36 @@ const filterThemes = (type?: ThemeType): ThemeMetadata[] => {
 	return response;
 };
 
+// Get the first theme of a specific type (used for setting default themes)
+const getFirstThemeByType = (type: ThemeType): Theme | null => {
+	const theme = appDB
+		.prepare(
+			`
+    SELECT *
+    FROM themes
+    WHERE type = ?
+    ORDER BY created_at ASC
+    LIMIT 1
+    `,
+		)
+		.get(type) as Theme | undefined;
+
+	return theme || null;
+};
+
+// Get default themes for all types (first theme of each type)
+const getShippedDefaultThemes = (): {
+	songTheme: Theme | null;
+	scriptureTheme: Theme | null;
+	presentationTheme: Theme | null;
+} => {
+	return {
+		songTheme: getFirstThemeByType("song"),
+		scriptureTheme: getFirstThemeByType("scripture"),
+		presentationTheme: getFirstThemeByType("presentation"),
+	};
+};
+
 export {
 	fetchAllThemes,
 	addTheme,
@@ -172,4 +202,6 @@ export {
 	deleteTheme,
 	fetchThemeById,
 	filterThemes,
+	getFirstThemeByType,
+	getShippedDefaultThemes,
 };

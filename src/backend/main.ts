@@ -71,6 +71,7 @@ import {
 	fetchThemeById,
 	updateTheme,
 	filterThemes,
+	getShippedDefaultThemes,
 } from "./database/theme-operations.js";
 import {
 	getMediaDestination,
@@ -579,6 +580,7 @@ ipcMain.handle("delete-theme", (_, id) => deleteTheme(id));
 ipcMain.handle("fetch-themes-meta", () => fetchAllThemes());
 ipcMain.handle("fetch-theme", (_, id) => fetchThemeById(id));
 ipcMain.handle("filter-themes", (_, type) => filterThemes(type));
+ipcMain.handle("get-shipped-default-themes", () => getShippedDefaultThemes());
 
 /*
  * ======================================================================================

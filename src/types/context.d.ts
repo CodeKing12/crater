@@ -182,6 +182,11 @@ export interface IElectronAPI {
 	) => Promise<BridgeResponse & { updatedTheme?: Theme }>;
 	deleteTheme: (id: number) => Promise<BridgeResponse>;
 	filterThemes: (type: ThemeType) => Promise<Theme[]>;
+	getShippedDefaultThemes: () => Promise<{
+		songTheme: Theme | null;
+		scriptureTheme: Theme | null;
+		presentationTheme: Theme | null;
+	}>;
 
 	// Opens dialog to fetch all files
 	importEswSongs: () => Promise<BridgeResponse>;

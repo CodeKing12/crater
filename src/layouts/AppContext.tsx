@@ -60,7 +60,7 @@ export default function AppContextProvider(props: ParentProps) {
 		console.log("Sync Event Parsed Data: ", parsedValue);
 		setStore(...parsedValue);
 	};
-	onMount(() => {
+	onMount(async () => {
 		// get saved state on mount
 		const savedState = localStorage.getItem(storageKey);
 		console.log(
@@ -86,6 +86,30 @@ export default function AppContextProvider(props: ParentProps) {
 				],
 			);
 			setStore(reconcile(state));
+		}
+
+		// Auto-set default themes if not already set
+		const currentSongTheme = appStore.displayData?.songTheme;
+		const currentScriptureTheme = appStore.displayData?.scriptureTheme;
+
+		if (!currentSongTheme || !currentScriptureTheme) {
+			try {
+				const shippedThemes =
+					await window.electronAPI.getShippedDefaultThemes();
+				console.log("Shipped default themes:", shippedThemes);
+
+				if (!currentSongTheme && shippedThemes.songTheme) {
+					setStore("displayData", "songTheme", shippedThemes.songTheme);
+				}
+				if (!currentScriptureTheme && shippedThemes.scriptureTheme) {
+					setStore("displayData", "scriptureTheme", shippedThemes.scriptureTheme);
+				}
+
+				// Save to localStorage after setting defaults
+				localStorage.setItem(storageKey, JSON.stringify(unwrap(appStore)));
+			} catch (error) {
+				console.error("Failed to load shipped default themes:", error);
+			}
 		}
 
 		broadcast.onmessage = syncStore;

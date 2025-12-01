@@ -107,6 +107,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
 		ipcRenderer.invoke("update-theme", id, data),
 	deleteTheme: (id: number) => ipcRenderer.invoke("delete-theme", id),
 	filterThemes: (type: ThemeType) => ipcRenderer.invoke("filter-themes", type),
+	getShippedDefaultThemes: () =>
+		ipcRenderer.invoke("get-shipped-default-themes"),
 
 	importEswSongs: () => ipcRenderer.invoke("import-easyworship-songs"),
 	getImages: () => ipcRenderer.invoke("get-images"),
